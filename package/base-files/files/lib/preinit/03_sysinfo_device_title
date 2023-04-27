@@ -1,0 +1,14 @@
+do_sysinfo_device_title() {
+	# The '%' templating comes from VERSION_SED_SCRIPT (see Makefile).
+	# This script is only put on the device if "%M" is user-defined.
+	MODEL="$(cat /tmp/sysinfo/model)"
+	if [ "%P" = Generic ]; then
+		echo "%M ${MODEL#%M}" > /tmp/sysinfo/model
+	else
+		echo "%M %P" > /tmp/sysinfo/model
+	fi
+
+	[ -n "%h" ] && echo "%h" > /tmp/sysinfo/hw_rev
+}
+
+boot_hook_add preinit_main do_sysinfo_device_title
