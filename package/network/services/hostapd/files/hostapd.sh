@@ -136,7 +136,7 @@ hostapd_prepare_device_config() {
 
 	local base_cfg=
 
-	json_get_vars country country3 country_ie beacon_int:100 doth require_mode legacy_rates \
+	json_get_vars country country3 country_ie doth require_mode legacy_rates \
 		acs_chan_bias local_pwr_constraint spectrum_mgmt_required airtime_mode cell_density \
 		rts_threshold beacon_rate rssi_reject_assoc_rssi rssi_ignore_probe_request maxassoc \
 		mbssid:0
@@ -236,7 +236,6 @@ hostapd_prepare_device_config() {
 	[ -n "$beacon_rate" ] && append base_cfg "beacon_rate=$beacon_rate" "$N"
 	[ -n "$rlist" ] && append base_cfg "supported_rates=$rlist" "$N"
 	[ -n "$brlist" ] && append base_cfg "basic_rates=$brlist" "$N"
-	append base_cfg "beacon_int=$beacon_int" "$N"
 	[ -n "$rts_threshold" ] && append base_cfg "rts_threshold=$rts_threshold" "$N"
 	[ "$airtime_mode" -gt 0 ] && append base_cfg "airtime_mode=$airtime_mode" "$N"
 	[ -n "$maxassoc" ] && append base_cfg "iface_max_num_sta=$maxassoc" "$N"
@@ -307,6 +306,7 @@ hostapd_common_add_bss_config() {
 	config_add_string wpa_psk_file
 
 	config_add_int multi_ap
+	config_add_int beacon_int
 
 	config_add_boolean wps_pushbutton wps_label ext_registrar wps_pbc_in_m1
 	config_add_int wps_ap_setup_locked wps_independent
@@ -569,7 +569,8 @@ hostapd_set_bss_options() {
 		ppsk airtime_bss_weight airtime_bss_limit airtime_sta_weight \
 		multicast_to_unicast_all proxy_arp per_sta_vif \
 		eap_server eap_user_file ca_cert server_cert private_key private_key_passwd server_id \
-		vendor_elements fils ocv
+		vendor_elements fils ocv \
+		beacon_int
 
 	set_default fils 0
 	set_default isolate 0
@@ -593,6 +594,7 @@ hostapd_set_bss_options() {
 	set_default airtime_bss_weight 0
 	set_default airtime_bss_limit 0
 	set_default eap_server 0
+	set_default beacon_int 100
 
 	/usr/sbin/hostapd -vfils || fils=0
 
@@ -621,6 +623,7 @@ hostapd_set_bss_options() {
 	append bss_conf "uapsd_advertisement_enabled=$uapsd" "$N"
 	append bss_conf "utf8_ssid=$utf8_ssid" "$N"
 	append bss_conf "multi_ap=$multi_ap" "$N"
+	append bss_conf "beacon_int=$beacon_int" "$N"
 	[ -n "$vendor_elements" ] && append bss_conf "vendor_elements=$vendor_elements" "$N"
 
 	[ "$tdls_prohibit" -gt 0 ] && append bss_conf "tdls_prohibit=$tdls_prohibit" "$N"
@@ -1302,7 +1305,8 @@ wpa_supplicant_add_network() {
 		basic_rate mcast_rate \
 		ieee80211w ieee80211r fils ocv \
 		multi_ap \
-		default_disabled
+		default_disabled \
+		beacon_int
 
 	case "$auth_type" in
 		sae|owe|eap2|eap192)
@@ -1316,6 +1320,7 @@ wpa_supplicant_add_network() {
 	set_default ieee80211r 0
 	set_default multi_ap 0
 	set_default default_disabled 0
+	set_default beacon_int 100
 
 	local key_mgmt='NONE'
 	local network_data=
