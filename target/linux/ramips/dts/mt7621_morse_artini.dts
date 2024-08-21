@@ -11,12 +11,9 @@
 	model = "MorseMicro HaLowLink 1";
 
 	aliases {
-		led-boot = &led1_green;
-		led-failsafe = &led1_red;
-		led-running = &led1_green;
-		led-runningsta = &led1_blue;
-		led-upgrade = &led1_blue;
-		led-dpp = &led1_red;
+		led-halow = &led2;
+		led-wifi = &led0;
+		led-status = &led1;
 		label-mac-device = &wan;
 	};
 
@@ -34,29 +31,10 @@
 		};
 	};
 
-	leds {
-		compatible = "gpio-leds";
-
-		led1_red: led1_red {
-			label = "red:led1";
-			gpios = <&gpio 23 GPIO_ACTIVE_LOW>;
-		};
-
-		led1_green: led1_green {
-			label = "green:led1";
-			gpios = <&gpio 22 GPIO_ACTIVE_LOW>;
-		};
-
-		led1_blue: led1_blue {
-			label = "blue:led1";
-			gpios = <&gpio 33 GPIO_ACTIVE_LOW>;
-		};
-	};
-
 	led0 {
 		compatible = "pwm-leds-multicolor";
 
-		multi-led {
+		led0: multi-led {
 			label = "rgb:led0";
 			color = <LED_COLOR_ID_RGB>;
 			function = LED_FUNCTION_INDICATOR;
@@ -79,10 +57,36 @@
 		};
 	};
 
+	led1 {
+		compatible = "pwm-leds-multicolor";
+
+		led1: multi-led {
+			label = "rgb:led1";
+			color = <LED_COLOR_ID_RGB>;
+			function = LED_FUNCTION_INDICATOR;
+			max-brightness = <255>;
+
+			led1_red {
+				pwms = <&pwm1_red 0 1000000>;
+				color = <LED_COLOR_ID_RED>;
+			};
+
+			led1_green {
+				pwms = <&pwm1_green 0 1000000>;
+				color = <LED_COLOR_ID_GREEN>;
+			};
+
+			led1_blue {
+				pwms = <&pwm1_blue 0 1000000>;
+				color = <LED_COLOR_ID_BLUE>;
+			};
+		};
+	};
+
 	led2 {
 		compatible = "pwm-leds-multicolor";
 
-		multi-led {
+		led2: multi-led {
 			label = "rgb:led2";
 			color = <LED_COLOR_ID_RGB>;
 			function = LED_FUNCTION_INDICATOR;
@@ -121,6 +125,24 @@
 		#pwm-cells = <2>;
 		compatible = "pwm-gpio";
 		gpios = <&gpio 15 GPIO_ACTIVE_LOW>;
+	};
+
+	pwm1_red: pwm1_red {
+		#pwm-cells = <2>;
+		compatible = "pwm-gpio";
+		gpios = <&gpio 23 GPIO_ACTIVE_LOW>;
+	};
+
+	pwm1_green: pwm1_green {
+		#pwm-cells = <2>;
+		compatible = "pwm-gpio";
+		gpios = <&gpio 22 GPIO_ACTIVE_LOW>;
+	};
+
+	pwm1_blue: pwm1_blue {
+		#pwm-cells = <2>;
+		compatible = "pwm-gpio";
+		gpios = <&gpio 33 GPIO_ACTIVE_LOW>;
 	};
 
 	pwm2_red: pwm2_red {
