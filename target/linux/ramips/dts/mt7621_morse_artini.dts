@@ -342,7 +342,7 @@
 		/* GPIO13 -> GPIO21 */
 		"JTDO", "JTDI", "JTMS", "JTCLK", "JTRST_N", "WDT_RST_N", "PERST", "", "",
 		/* GPIO22 -> GPIO33 */
-		"GE2_TXD0", "GE2_TXD1", "GE2_TXD2", "GE2_TXD3", "GE2_TXEN", "GE2_TXCLK", "GE2_RXD0", "GE2_RXD1", "GE2_RXD2", "GE2_RXD3", "GE2_RXDV", "GE2_RXCLK",
+		"GE2_TXD0", "GE2_TXD1", "GE2_TXD2", "GE2_TXD3", "GE2_TXEN", "MM_BOOST", "GE2_RXD0", "GE2_RXD1", "GE2_RXD2", "GE2_RXD3", "GE2_RXDV", "GE2_RXCLK",
 		/* GPIO34 -> GPIO48 */
 		"ND_CS_N", "ND_WE_N", "ND_RE_N", "ND_D4", "ND_D5", "ND_D6", "ND_D7", "ND_WP", "ND_RB_N", "ND_CLE", "ND_ALE", "ND_D0", "ND_D1", "ND_D2", "ND_D3",
 		/* GPIO49 -> GPIO63 - unused, but need to be specified to avoid kernel complaints */
