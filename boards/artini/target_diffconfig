@@ -13,5 +13,6 @@ CONFIG_PACKAGE_persistent-vars-storage-ubootenv=y
 CONFIG_PACKAGE_morse-modeswitch-button=y
 CONFIG_PACKAGE_wizard-config=y
 CONFIG_PACKAGE_luci-app-morseapwizard=y
+CONFIG_PACKAGE_luci-app-halowlink1guide=y
 CONFIG_PACKAGE_morse-leds=y
 CONFIG_MORSE_REGDB_COUNTRY_CODE_FILTER="US|AU"
