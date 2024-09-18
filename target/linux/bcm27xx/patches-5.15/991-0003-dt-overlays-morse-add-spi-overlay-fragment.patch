@@ -1,0 +1,72 @@
+From cc1293f787d22159066e0f021b578624152fce60 Mon Sep 17 00:00:00 2001
+From: Arien Judge <arien.judge@morsemicro.com>
+Date: Tue, 6 Feb 2024 17:47:26 +1100
+Subject: [PATCH 3/4] dt-overlays: morse: add spi overlay fragment
+
+---
+ .../boot/dts/overlays/morse-spi-overlay.dts   | 53 +++++++++++++++++++
+ 1 file changed, 53 insertions(+)
+ create mode 100644 arch/arm/boot/dts/overlays/morse-spi-overlay.dts
+
+diff --git a/arch/arm/boot/dts/overlays/morse-spi-overlay.dts b/arch/arm/boot/dts/overlays/morse-spi-overlay.dts
+new file mode 100644
+index 000000000..773931f61
+--- /dev/null
++++ b/arch/arm/boot/dts/overlays/morse-spi-overlay.dts
+@@ -0,0 +1,53 @@
++/dts-v1/;
++/plugin/;
++
++/ {
++	compatible = "brcm,bcm2835", "brcm,bcm2836", "brcm,bcm2708", "brcm,bcm2709", "brcm,bcm2711";
++
++	fragment@0 {
++		target = <&spi0>;
++		frag0: __overlay__ {
++			pinctrl-0 = <&spi0_pins &spi0_cs_pins>;
++			cs-gpios = <&gpio 8 1>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "okay";
++
++			mm6108: mm6108@0 {
++				compatible = "morse,mm610x-spi";
++				reg = <0>;	/* CE0 */
++				reset-gpios = <&gpio 5 0>;
++				power-gpios = <&gpio 3 0>,
++				              <&gpio 7 0>;
++				spi-irq-gpios = <&gpio 25 0>;
++				spi-max-frequency = <50000000>;
++				status = "okay";
++			};
++
++			spidev0: spidev@0 {
++				reg = <0>;	/* CE0 */
++				status = "disabled";
++			};
++
++			spidev1: spidev@1 {
++				reg = <1>;	/* CE1 */
++				status = "disabled";
++			};
++		};
++	};
++
++	fragment@1 {
++		target = <&gpio>;
++		__overlay__ {
++			spi0_cs_pins: spi0_cs_pins {
++				brcm,pins = <8>;
++				brcm,function = <1>; /* BCM2835_FSEL_GPIO_OUT */
++				brcm,pull = <2>; 	 /* SET SPI PINS AS PULL HIGH */
++			};
++			spi0_pins: spi0_pins {
++				brcm,pull = <2 2 2>; /* SET SPI PINS AS PULL HIGH */
++			};
++
++		};
++	};
++};
+\ No newline at end of file
+--
+2.25.1

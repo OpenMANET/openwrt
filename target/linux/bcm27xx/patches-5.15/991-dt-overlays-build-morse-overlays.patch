@@ -1,0 +1,21 @@
+--- a/arch/arm/boot/dts/overlays/Makefile
++++ b/arch/arm/boot/dts/overlays/Makefile
+@@ -142,7 +142,10 @@ dtbo-$(CONFIG_ARCH_BCM2835) += \
+ 	miniuart-bt.dtbo \
+ 	mipi-dbi-spi.dtbo \
+ 	mlx90640.dtbo \
++	mm_wlan.dtbo \
+ 	mmc.dtbo \
++	morse-ps.dtbo \
++	morse-spi.dtbo \
+ 	mpu6050.dtbo \
+ 	mz61581.dtbo \
+ 	ov2311.dtbo \
+@@ -172,6 +175,7 @@ dtbo-$(CONFIG_ARCH_BCM2835) += \
+ 	pwm-ir-tx.dtbo \
+ 	qca7000.dtbo \
+ 	qca7000-uart0.dtbo \
++	ramoops.dtbo \
+ 	rotary-encoder.dtbo \
+ 	rpi-backlight.dtbo \
+ 	rpi-cirrus-wm5102.dtbo \
