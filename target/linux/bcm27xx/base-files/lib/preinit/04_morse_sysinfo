@@ -1,0 +1,33 @@
+# This needs to run after 03_sysinfo_device_title so it can use model and the hardware revision.
+do_sysinfo_morse() {
+	local model=$([ -e /tmp/sysinfo/model ] && cat /tmp/sysinfo/model || echo "unknown")
+	local hwrev=$([ -e /tmp/sysinfo/hw_rev ] && cat /tmp/sysinfo/hw_rev)
+
+	case "$model" in
+		"MorseMicro EKH01"*)
+			# For newer devices, the module type is populated on "hotplug" of the
+			# morse device. To correctly report/imply the module type for older targets,
+			# without the capability for detection, we force the model string users are
+			# used to seeing here based on the hardware revision.
+			case "$hwrev" in
+				"-03")
+					echo "MorseMicro EKH01-03" > /tmp/sysinfo/model
+					echo morse,ekh01-03 > /tmp/sysinfo/board_name
+				;;
+				"v2")
+					echo "MorseMicro EKH01v2" > /tmp/sysinfo/model
+					echo morse,ekh01v2 > /tmp/sysinfo/board_name
+				;;
+				"v1")
+					echo "MorseMicro EKH01v1" > /tmp/sysinfo/model
+					echo morse,ekh01v1 > /tmp/sysinfo/board_name
+				;;
+				*)
+					echo morse,ekh01 > /tmp/sysinfo/board_name
+				;;
+			esac
+		;;
+	esac
+}
+
+boot_hook_add preinit_main do_sysinfo_morse

@@ -193,27 +193,16 @@ endif
 
 define Device/morse_ekh01
   $(Device/rpi-4)
-  DEVICE_VENDOR := MorseMicro
-  DEVICE_MODEL := MM6108-EKH01
+  DEVICE_VENDOR := Morse Micro
+  DEVICE_MODEL := EKH01
   DEVICE_VARIANT :=
   # remove the factory image
   IMAGES := sysupgrade.img.gz
   # Simplify by removing board and OpenWRT version.
   IMAGE_PREFIX = $$(VERSION_DIST_SANITIZED)-$$(IMG_PREFIX_VERCODE)$$(IMG_PREFIX_EXTRA)$$(call sanitize,$$(DEVICE_TITLE))
   DEVICE_IMG_NAME = $$(IMAGE_PREFIX)-$$(1)-$$(2)
-  # This is very similar to DEVICE_TITLE, but we want to handle the 'variants' differently
-  # (i.e. EKH01v1 vs EKH01 v1, and EKH01-03 vs EKH01 03).
-  SYSINFO_MODEL := MorseMicro EKH01
-  # SYSINFO_BOARD_NAME will usually be the first entry in SUPPORTED_DEVICES,
-  # This is the name on device; SUPPORTED_DEVICES are the names in the metadata.
-  # SYSINFO_BOARD_NAME must be one of the names in SUPPORTED_DEVICES for upgrades
-  # to work.
-  SYSINFO_BOARD_NAME := morse,ekh01
   SUPPORTED_DEVICES := morse,ekh01 morse,ekh01-05us
-  SPI_OVERLAY := mm610x-spi
-  DEVICE_PACKAGES += kmod-morse netifd-morse morse-fw-6108 morse-fw-8108
-  IMAGE/sysupgrade.img.gz := boot-common | boot-2711 | boot-ekh01 | sdcard-img | gzip | append-metadata
-  IMAGE/factory.img.gz := boot-common | boot-2711 | boot-ekh01 | sdcard-img | gzip
+  DEVICE_PACKAGES += kmod-morse netifd-morse
 endef
 ifeq ($(SUBTARGET),bcm2711)
   TARGET_DEVICES += morse_ekh01
@@ -222,8 +211,6 @@ endif
 define Device/morse_ekh01v1
   $(Device/morse_ekh01)
   DEVICE_VARIANT := v1
-  SYSINFO_MODEL := MorseMicro EKH01v1
-  SYSINFO_BOARD_NAME := morse,ekh01v1
   SUPPORTED_DEVICES := morse,ekh01v1 morse,ekh01
 endef
 ifeq ($(SUBTARGET),bcm2711)
@@ -233,8 +220,6 @@ endif
 define Device/morse_ekh01v2
   $(Device/morse_ekh01)
   DEVICE_VARIANT := v2
-  SYSINFO_MODEL := MorseMicro EKH01v2
-  SYSINFO_BOARD_NAME := morse,ekh01v2
   SUPPORTED_DEVICES := morse,ekh01v2
 endef
 ifeq ($(SUBTARGET),bcm2711)
@@ -244,38 +229,10 @@ endif
 define Device/morse_ekh01-03
   $(Device/morse_ekh01)
   DEVICE_VARIANT := 03
-  SYSINFO_MODEL := MorseMicro EKH01-03
-  SYSINFO_BOARD_NAME := morse,ekh01-03
   SUPPORTED_DEVICES := morse,ekh01-03
 endef
 ifeq ($(SUBTARGET),bcm2711)
   TARGET_DEVICES += morse_ekh01-03
-endif
-
-define Device/morse_ekh01-mf13455
-  $(Device/morse_ekh01)
-  DEVICE_MODEL := MM8108-EKH01
-  DEVICE_VARIANT := mf13455
-  SYSINFO_MODEL := MorseMicro EKH01-mf13455
-  SYSINFO_BOARD_NAME := morse,ekh01-mf13455
-  SUPPORTED_DEVICES := morse,ekh01-mf13455
-  SPI_OVERLAY := mm810x-spi
-endef
-ifeq ($(SUBTARGET),bcm2711)
-  TARGET_DEVICES += morse_ekh01-mf13455
-endif
-
-define Device/morse_ekh01-mf15457
-  $(Device/morse_ekh01)
-  DEVICE_MODEL := MM8108-EKH01
-  DEVICE_VARIANT := mf15457
-  SYSINFO_MODEL := MorseMicro EKH01-mf15457
-  SYSINFO_BOARD_NAME := morse,ekh01-mf15457
-  SUPPORTED_DEVICES := morse,ekh01-mf15457
-  SPI_OVERLAY := mm810x-spi
-endef
-ifeq ($(SUBTARGET),bcm2711)
-  TARGET_DEVICES += morse_ekh01-mf15457
 endif
 
 $(eval $(call BuildImage))
