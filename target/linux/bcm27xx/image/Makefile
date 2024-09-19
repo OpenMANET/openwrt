@@ -55,6 +55,7 @@ endef
 
 ### Devices ###
 define Device/Default
+  PROFILES := Default
   DEVICE_VENDOR := Raspberry Pi
   KERNEL := kernel-bin
   KERNEL_IMG := kernel.img
@@ -170,6 +171,50 @@ define Device/rpi-4
 endef
 ifeq ($(SUBTARGET),bcm2711)
   TARGET_DEVICES += rpi-4
+endif
+
+define Device/morse_ekh01
+  $(Device/rpi-4)
+  DEVICE_VENDOR := Morse Micro
+  DEVICE_MODEL := EKH01
+  DEVICE_VARIANT :=
+  # remove the factory image
+  IMAGES := sysupgrade.img.gz
+  # Simplify by removing board and OpenWRT version.
+  IMAGE_PREFIX = $$(VERSION_DIST_SANITIZED)-$$(IMG_PREFIX_VERCODE)$$(IMG_PREFIX_EXTRA)$$(call sanitize,$$(DEVICE_TITLE))
+  DEVICE_IMG_NAME = $$(IMAGE_PREFIX)-$$(1)-$$(2)
+  SUPPORTED_DEVICES := morse,ekh01 morse,ekh01-05us
+  DEVICE_PACKAGES += kmod-morse netifd-morse
+endef
+ifeq ($(SUBTARGET),bcm2711)
+  TARGET_DEVICES += morse_ekh01
+endif
+
+define Device/morse_ekh01v1
+  $(Device/morse_ekh01)
+  DEVICE_VARIANT := v1
+  SUPPORTED_DEVICES := morse,ekh01v1 morse,ekh01
+endef
+ifeq ($(SUBTARGET),bcm2711)
+  TARGET_DEVICES += morse_ekh01v1
+endif
+
+define Device/morse_ekh01v2
+  $(Device/morse_ekh01)
+  DEVICE_VARIANT := v2
+  SUPPORTED_DEVICES := morse,ekh01v2
+endef
+ifeq ($(SUBTARGET),bcm2711)
+  TARGET_DEVICES += morse_ekh01v2
+endif
+
+define Device/morse_ekh01-03
+  $(Device/morse_ekh01)
+  DEVICE_VARIANT := 03
+  SUPPORTED_DEVICES := morse,ekh01-03
+endef
+ifeq ($(SUBTARGET),bcm2711)
+  TARGET_DEVICES += morse_ekh01-03
 endif
 
 $(eval $(call BuildImage))
