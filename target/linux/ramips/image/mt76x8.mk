@@ -1062,7 +1062,7 @@ TARGET_DEVICES += zyxel_keenetic-extra-ii
 
 define Device/morse_ekh03
   IMAGE_SIZE := 32448k
-  DEVICE_VENDOR := MorseMicro
+  DEVICE_VENDOR := Morse Micro
   DEVICE_MODEL := EKH03
   DEVICE_VARIANT :=
   # Simplify by removing board and OpenWRT version.
@@ -1070,7 +1070,7 @@ define Device/morse_ekh03
   DEVICE_IMG_NAME = $$(IMAGE_PREFIX)-$$(1)-$$(2)
   DEVICE_PACKAGES := kmod-usb2 kmod-usb-ohci kmod-usb-ledtrig-usbport \
 	kmod-mmc-mt7620 kmod-i2c-mt7628 \
-	kmod-morse netifd-morse morse-fw-6108 \
+	kmod-morse netifd-morse \
 	uboot-envtools
 endef
 
@@ -1088,10 +1088,10 @@ define Device/morse_ekh03v4
 endef
 TARGET_DEVICES += morse_ekh03v4
 
-define Device/morse_ekh04v6
+define Device/morse_ekh04v4
   $(Device/morse_ekh03)
   DEVICE_MODEL := EKH04
-  DEVICE_VARIANT:= v6
-  SUPPORTED_DEVICES += morse,ekh04v6
+  DEVICE_VARIANT:= v4
+  SUPPORTED_DEVICES += morse,ekh04v4
 endef
-TARGET_DEVICES += morse_ekh04v6
+TARGET_DEVICES += morse_ekh04v4

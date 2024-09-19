@@ -1,11 +1,37 @@
 #include "mt7628an_morse_ekh03.dtsi"
-#include "mt7628an_morse_ekh03_rgbled.dtsi"
 
 / {
 	compatible = "morse,ekh03v4", "mediatek,mt7628an-soc";
-	// Hotplug script will add a version here (currently -05US),
-	// so we leave this without a v4.
-	model = "MorseMicro EKH03";
+	model = "EKH03";
+
+	aliases {
+		led-boot = &led_boot;
+		led-failsafe = &led_failsafe;
+		led-dpp = &led_failsafe;
+		led-running = &led_boot;
+		led-runningsta = &led_upgrade;
+		led-upgrade = &led_upgrade;
+		label-mac-device = &wmac;
+	};
+
+	leds {
+		compatible = "gpio-leds";
+
+		led_boot: bootled {
+			label = "morse:boot";
+			gpios = <&gpio 18 GPIO_ACTIVE_HIGH>;
+		};
+
+		led_failsafe: failsafeled {
+			label = "morse:failsafe";
+			gpios = <&gpio 20 GPIO_ACTIVE_HIGH>;
+		};
+
+		led_upgrade: upgradeled {
+			label = "morse:upgrade";
+			gpios = <&gpio 19 GPIO_ACTIVE_HIGH>;
+		};
+	};
 };
 
 &firmware {

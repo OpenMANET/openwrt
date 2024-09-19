@@ -1,8 +1,8 @@
 #include "mt7628an_morse_ekh03.dtsi"
 
 / {
-	compatible = "morse,ekh03v3", "mediatek,mt7628an-soc";
-	model = "EKH03-03";
+	compatible = "morse,ekh04v4", "mediatek,mt7628an-soc";
+	model = "EKH04 v4";
 
 	aliases {
 		led-boot = &led_boot;
@@ -38,17 +38,19 @@
 	reg = <0x50000 0x1fb0000>;
 };
 
-&state_default {
-	gpio {
-		groups = "wled_an", "refclk", "wdt", "pwm0", "pwm1", "uart2";
-		function = "gpio";
-	};
-};
-
 &uart2_pins {
 	uart2 {
 		groups = "uart2";
 		function = "gpio";
+	};
+};
+
+&pinctrl {
+	spis_pins: spis{
+		spis{
+			groups = "spis";
+			function = "pwm_uart2";
+		};
 	};
 };
 
