@@ -21,6 +21,9 @@ engenius,epg600|\
 engenius,esr600h|\
 linksys,re7000|\
 meig,slt866|\
+morse,ekh03v3|\
+morse,ekh03v4|\
+morse,ekh04v4|\
 sitecom,wlr-4100-v1-002|\
 zyxel,keenetic-lite-iii-a)
 	ubootenv_add_uci_config "/dev/mtd1" "0x0" "0x1000" "0x1000"
