@@ -49,9 +49,6 @@ dtparam=spi=on
 #(we configure it for HaLow later in userspace)
 dtparam=act_led_trigger=none
 
-#adds morse-spi device tree
-dtoverlay=morse-spi
-
 #adds ramoops device tree overlay
 dtoverlay=ramoops
 
