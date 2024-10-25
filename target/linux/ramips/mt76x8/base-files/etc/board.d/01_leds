@@ -59,6 +59,18 @@ keenetic,kn-1613)
 mediatek,linkit-smart-7688)
 	ucidef_set_led_wlan "wifi" "wifi" "orange:wifi" "phy0tpt"
 	;;
+morse,ekh03v3|\
+morse,ekh03v4|\
+morse,ekh04v3|\
+morse,ekh04v4)
+	# There is a single RGB LED on this board. We want it to be green once booted,
+	# and turn purple once a link is established. To achieve this, we set
+	# 'link invert' on the green LED (i.e. turn on if wlan0 is off).
+	# Note that wlan0 is usually the morse chip.
+	ucidef_set_led_netdev "red" "red-wifi-activity" "red:led1" "wlan0" "link tx rx"
+	ucidef_set_led_netdev "blue" "blue-wifi-activity" "blue:led1" "wlan0" "link tx rx"
+	ucidef_set_led_netdev "green" "green-wifi-off" "green:led1" "wlan0" "link invert"
+	;;
 oraybox,x1)
 	ucidef_set_led_netdev "wifi" "wifi" "blue:status" "wlan0"
 	;;
