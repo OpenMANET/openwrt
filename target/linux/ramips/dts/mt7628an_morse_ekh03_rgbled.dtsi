@@ -1,0 +1,36 @@
+/* An RGB LED was added to later EKH03/04s.
+ * Note that the standard LED (on the VoCore module) is not normally
+ * visible, as it's inside the case.
+ */
+
+/ {
+	aliases {
+		led-boot = &led1_green;
+		led-failsafe = &led1_red;
+		led-running = &led1_green;
+		led-upgrade = &led1_blue;
+
+		led-status-green = &led1_green;
+		led-status-blue = &led1_blue;
+		led-status-red = &led1_red;
+	};
+
+	leds {
+		compatible = "gpio-leds";
+
+		led1_red: led1-red {
+			label = "red:led1";
+			gpios = <&gpio 20 GPIO_ACTIVE_HIGH>;
+		};
+
+		led1_green: led1-green {
+			label = "green:led1";
+			gpios = <&gpio 18 GPIO_ACTIVE_HIGH>;
+		};
+
+		led1_blue: led1-blue {
+			label = "blue:led1";
+			gpios = <&gpio 19 GPIO_ACTIVE_HIGH>;
+		};
+	};
+};
