@@ -189,7 +189,7 @@ endif
 define Device/morse_ekh01
   $(Device/rpi-4)
   DEVICE_VENDOR := MorseMicro
-  DEVICE_MODEL := EKH01
+  DEVICE_MODEL := MM6108-EKH01
   DEVICE_VARIANT :=
   # remove the factory image
   IMAGES := sysupgrade.img.gz
