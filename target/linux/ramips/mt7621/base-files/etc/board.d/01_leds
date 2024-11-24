@@ -154,6 +154,10 @@ mikrotik,routerboard-m11g)
 	ucidef_set_led_rssi "rssihigh" "RSSIHIGH" "green:rssi3" "wlan0" "60" "100"
 	ucidef_set_led_rssi "rssiveryhigh" "RSSIVERYHIGH" "green:rssi4" "wlan0" "80" "100"
 	;;
+morse,artini)
+	ucidef_set_led_netdev "halow" "rgb-halow" "rgb:led2" "wlan0" "link tx rx"
+	ucidef_set_led_netdev "80211n-ap" "rgb-80211n-ap" "rgb:led0" "phy0-ap0" "link tx rx"
+	;;
 mtc,wr1201)
 	ucidef_set_led_netdev "eth_link" "LAN link" "green:eth_link" "br-lan"
 	;;
