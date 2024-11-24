@@ -35,6 +35,7 @@ CONFIG_BUSYBOX_CONFIG_FEATURE_LESS_ASK_TERMINAL=y
 CONFIG_PACKAGE_morsectrl=m
 CONFIG_PACKAGE_morse-bundle=y
 CONFIG_PACKAGE_morse-copy-coredump=y
+CONFIG_PACKAGE_morse_mesh11sd=y
 
 # TZ
 CONFIG_PACKAGE_zoneinfo-core=y
