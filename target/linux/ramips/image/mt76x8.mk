@@ -1088,10 +1088,10 @@ define Device/morse_ekh03v4
 endef
 TARGET_DEVICES += morse_ekh03v4
 
-define Device/morse_ekh04v4
+define Device/morse_ekh04v6
   $(Device/morse_ekh03)
   DEVICE_MODEL := EKH04
-  DEVICE_VARIANT:= v4
-  SUPPORTED_DEVICES += morse,ekh04v4
+  DEVICE_VARIANT:= v6
+  SUPPORTED_DEVICES += morse,ekh04v6
 endef
-TARGET_DEVICES += morse_ekh04v4
+TARGET_DEVICES += morse_ekh04v6
