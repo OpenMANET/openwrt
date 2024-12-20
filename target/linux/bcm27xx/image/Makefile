@@ -211,7 +211,7 @@ define Device/morse_ekh01
   SYSINFO_BOARD_NAME := morse,ekh01
   SUPPORTED_DEVICES := morse,ekh01 morse,ekh01-05us
   SPI_OVERLAY := mm610x-spi
-  DEVICE_PACKAGES += kmod-morse netifd-morse
+  DEVICE_PACKAGES += kmod-morse netifd-morse morse-fw-6108 morse-fw-8108
   IMAGE/sysupgrade.img.gz := boot-common | boot-2711 | boot-ekh01 | sdcard-img | gzip | append-metadata
   IMAGE/factory.img.gz := boot-common | boot-2711 | boot-ekh01 | sdcard-img | gzip
 endef

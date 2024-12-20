@@ -1685,7 +1685,7 @@ define Device/morse_artini
   # So a 'normal' Artini image will look like openwrt-morse-2.7.0-artini.bin
   DEVICE_IMG_NAME = $(VERSION_DIST_SANITIZED)-$$(IMG_PREFIX_VERCODE)$$(call sanitize,$$(DEVICE_MODEL))$$(if $$(filter-out squashfs,$$(1)),-$$(1),'')$$(if $$(filter-out sysupgrade.bin, $$(2)),-$$(2),.bin)
   DEVICE_PACKAGES := kmod-mmc-mt7620 kmod-mt7603 \
-	kmod-morse netifd-morse
+	kmod-morse netifd-morse morse-fw-6108
 endef
 TARGET_DEVICES += morse_artini
 
