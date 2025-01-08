@@ -37,7 +37,7 @@ index 000000000..f56a24083
 +
 +			gpio_mm_reset: gpio_mm_reset {
 +				mm-reset5-float {
-+					pins = "gpio5";
++					pins = "gpio17";
 +					function = "gpio_in";
 +					bias-disable;
 +					output-high;

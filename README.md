@@ -12,24 +12,12 @@ Install build environment packages with
 
 ## Usage
 
-Run the `./scripts/morse_setup.sh` script to configure the build for your board of choice. Custom boards can be added to the `boards` folder and used as a target. See an existing board for the information which should be contained in the diffconfigs.
+Run the `./scripts/morse_setup.sh` script to configure the build for your board of choice.
 
-For example, to build for an EKH01
+For example, Using seeedstudio's WiFi Halow Modules on Raspberry Pi.
 ```
 > ./scripts/morse_setup.sh -i -b ekh01
 ```
-
-Target configuration files provided by this repository include
-
-| Board       | Target                    |
-|-------------|-------------------------- |
-| EKH03-03    | `ekh03-03`                |
-| EKH03       | `ekh03`                   |
-| EKH01v1     | `ekh01v1`                 |
-| EKH01v2     | `ekh01v2`                 |
-| EKH01-03    | `ekh01-03`                |
-| EKH01       | `ekh01`                   |
-
 
 After configuration is complete, run the build with
 ```
@@ -42,3 +30,13 @@ For verbose compilation, consider using
 ```
 
 Once the build is complete a compiled image can be found in `bin/target/<platform>/<target>/`
+
+Of course, you can also download directly from the [release](https://github.com/Wvirfil123/openwrt/releases). The firmware in the release uses the [bcf_mf16858_fgh100mh_v6.3.0.bin](./bcf/bcf_mf16858_fgh100mh_v6.3.0.bin) BCF file.
+  
+If you compiled it yourself, after flashing it onto the Raspberry Pi, you need to SSH into the device and link `bcf_default.bin` to the `bcf_mf16858_fgh100mh_v6.3.0.bin` file.
+
+```
+cd /lib/firmware/morse
+rm bcf_default.bin
+ln -s bcf_mf16858_fgh100mh_v6.3.0.bin bcf_default.bin
+```

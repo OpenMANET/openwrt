@@ -32,7 +32,7 @@ index 000000000..ab5313583
 +			#size-cells = <0>;
 +			mm6108_sdio: mm6108_sdio@0 {
 +				compatible = "morse,mm610x";
-+				reset-gpios = <&gpio 5 0>;
++				reset-gpios = <&gpio 17 0>;
 +				power-gpios = <&gpio 3 0>,
 +				              <&gpio 7 0>;
 +				status = "okay";

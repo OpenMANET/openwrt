@@ -32,10 +32,10 @@ index 000000000..773931f61
 +			mm6108: mm6108@0 {
 +				compatible = "morse,mm610x-spi";
 +				reg = <0>;	/* CE0 */
-+				reset-gpios = <&gpio 5 0>;
++				reset-gpios = <&gpio 17 0>;
 +				power-gpios = <&gpio 3 0>,
 +				              <&gpio 7 0>;
-+				spi-irq-gpios = <&gpio 25 0>;
++				spi-irq-gpios = <&gpio 5 0>;
 +				spi-max-frequency = <50000000>;
 +				status = "okay";
 +			};
