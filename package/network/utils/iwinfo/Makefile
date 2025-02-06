@@ -10,10 +10,11 @@ PKG_NAME:=libiwinfo
 PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL=$(PROJECT_GIT)/project/iwinfo.git
-PKG_SOURCE_DATE:=2023-07-01
-PKG_SOURCE_VERSION:=ca79f64154b107f192ec3c1ba631816cb8b07922
-PKG_MIRROR_HASH:=5eddf584a1c3ed5637162d6bfc573ed1ce3691fcb38bdd55bf9f1e11e82ccc46
+# For now, use Morse repository to include HaLow support.
+PKG_SOURCE_URL:=https://github.com/MorseMicro/iwinfo.git
+PKG_SOURCE_DATE:=2024-10-18
+PKG_SOURCE_VERSION:=29c0882fb66a6b5b374441c24c687ffe77a84e77
+PKG_MIRROR_HASH:=9254fde1feb36a927283ead95961bf5a15ab983ab05170660e29382fd3c06b20
 PKG_MAINTAINER:=Jo-Philipp Wich <jo@mein.io>
 PKG_LICENSE:=GPL-2.0
 
@@ -28,6 +29,9 @@ define Package/libiwinfo
   SECTION:=libs
   CATEGORY:=Libraries
   TITLE:=Generalized Wireless Information Library (iwinfo)
+  # Don't select morsecli explicitly to avoid strange circular dep.
+  # If morsecli isn't present, some things won't work
+  # (as of writing, only noise stats).
   DEPENDS:=+libnl-tiny +libuci +libubus +libiwinfo-data
   ABI_VERSION:=$(IWINFO_ABI_VERSION)
 endef
