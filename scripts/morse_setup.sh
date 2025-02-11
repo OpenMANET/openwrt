@@ -53,7 +53,7 @@ EOF
     for b in boards/*; do
         if [ -e "$b/target_diffconfig" ]; then
             echo "  $(basename $b)"
-            sed -n 's/CONFIG_TARGET_.*_DEVICE_.*_\(.*\)=y/    \1/p' $b/target_diffconfig
+            sed -n 's/CONFIG_TARGET_.*_DEVICE_\(.*\)_\(.*\)=y/    \2 (\1 \2)/p' $b/target_diffconfig
             echo
         fi
     done
