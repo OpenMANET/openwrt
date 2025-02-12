@@ -65,21 +65,26 @@ download_toolchain(){
     mkdir -p tmp
     mkdir -p tmp/dl
     gcc_vers="$(sed -nE 's/^CONFIG_GCC_VERSION=\"([^\"]+)\"/\1/p' .config)"
-    arch="$(sed -nE 's/^CONFIG_TARGET_ARCH_PACKAGES=\"([^\"]+)\"/\1/p' .config)"
+    arch="$(sed -nE 's/^CONFIG_ARCH=\"([^\"]+)\"/\1/p' .config)"
+    cpu_type="$(sed -nE 's/^CONFIG_CPU_TYPE=\"([^\"]+)\"/\1/p' .config)"
+    if [ -n "$cpu_type" ]; then
+        arch_suffix="_${cpu_type}"
+    fi
     libc="$(sed -nE 's/^CONFIG_LIBC=\"([^\"]+)\"/\1/p' .config)"
     base_url="$(sed -nE 's/^CONFIG_VERSION_REPO=\"([^\"]+)\"/\1/p' .config)"
     vers=${base_url%%/}
     vers=${vers##http*/}
-    toolchain_archive="openwrt-toolchain-${vers}-${target}-${subtarget}_gcc-${gcc_vers}_${libc}.Linux-x86_64"
+    eabi_suffix=$(grep -q '^CONFIG_arm=y' .config && echo "_eabi")
+    toolchain_archive="openwrt-toolchain-${vers}-${target}-${subtarget}_gcc-${gcc_vers}_${libc}${eabi_suffix}.Linux-x86_64"
 
     if [ -n "${INSTALL_PATH}" ]; then
         [ ! -d "${INSTALL_PATH}" ] && mkdir -p "${INSTALL_PATH}"
         TAR_STRIP="--strip-components=2"
-        SUB_FOLDER="${toolchain_archive}/toolchain-${arch}_gcc-${gcc_vers}_${libc}"
+        SUB_FOLDER="${toolchain_archive}/toolchain-${arch}${arch_suffix}_gcc-${gcc_vers}_${libc}${eabi_suffix}"
         TOOLCHAIN_PATH=${INSTALL_PATH}
     else
         INSTALL_PATH="/opt"
-        TOOLCHAIN_PATH="/opt/${toolchain_archive}/toolchain-${arch}_gcc-${gcc_vers}_${libc}"
+        TOOLCHAIN_PATH="/opt/${toolchain_archive}/toolchain-${arch}${arch_suffix}_gcc-${gcc_vers}_${libc}${eabi_suffix}"
         SUB_FOLDER=""
         TAR_STRIP=""
     fi
