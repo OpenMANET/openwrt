@@ -3,3 +3,4 @@ src-git routing https://git.openwrt.org/feed/routing.git^e351d1e623e9ef2ab78f28c
 src-git telephony https://git.openwrt.org/feed/telephony.git^98c8a5aa4624312ed758e2e2b6d4039050a1649d
 src-git luci https://github.com/MorseMicro/luci.git
 src-git morse https://github.com/MorseMicro/morse-feed.git
+src-git prpl https://github.com/MorseMicro/feed-prpl.git
