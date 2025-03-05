@@ -10,6 +10,7 @@ CONFIG_TARGET_DEFAULT_LAN_IP_FROM_PREINIT=y
 CONFIG_PACKAGE_morsectrl=y
 CONFIG_PACKAGE_morse-board-config-hotplug-model=y
 CONFIG_PACKAGE_luci-app-ekhwizards=y
+CONFIG_PACKAGE_persistent-vars-storage-ubootenv=y
 
 CONFIG_TARGET_ROOTFS_PARTSIZE=104
 
