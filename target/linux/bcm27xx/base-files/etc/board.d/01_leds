@@ -11,7 +11,6 @@ morse,ekh01 |\
 morse,ekh01v1 |\
 morse,ekh01v2 |\
 morse,ekh01-03 |\
-morse,ekh01-mf13455 |\
 morse,ekh01-mf15457)
 	# RPI's have a green LED that is by default connected to SD card activity.
 	# For our purposes, connecting it to HaLow activity is more useful.

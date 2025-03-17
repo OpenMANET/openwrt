@@ -252,19 +252,6 @@ ifeq ($(SUBTARGET),bcm2711)
   TARGET_DEVICES += morse_ekh01-03
 endif
 
-define Device/morse_ekh01-mf13455
-  $(Device/morse_ekh01)
-  DEVICE_MODEL := MM8108-EKH01
-  DEVICE_VARIANT := mf13455
-  SYSINFO_MODEL := MorseMicro EKH01-mf13455
-  SYSINFO_BOARD_NAME := morse,ekh01-mf13455
-  SUPPORTED_DEVICES := morse,ekh01-mf13455
-  SPI_OVERLAY := mm810x-spi
-endef
-ifeq ($(SUBTARGET),bcm2711)
-  TARGET_DEVICES += morse_ekh01-mf13455
-endif
-
 define Device/morse_ekh01-mf15457
   $(Device/morse_ekh01)
   DEVICE_MODEL := MM8108-EKH01
