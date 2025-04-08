@@ -44,6 +44,8 @@ CONFIG_PACKAGE_morse-copy-coredump=y
 CONFIG_PACKAGE_smart_manager=y
 CONFIG_PACKAGE_morse_mesh11sd=y
 CONFIG_PACKAGE_morse-fw-6108-tlm=y
+CONFIG_PACKAGE_morse-button=y
+CONFIG_PACKAGE_morse-leds=y
 
 # TZ
 CONFIG_PACKAGE_zoneinfo-core=y

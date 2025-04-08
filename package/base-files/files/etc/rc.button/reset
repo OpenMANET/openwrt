@@ -1,5 +1,9 @@
 #!/bin/sh
 
+if [ -e /etc/rc.button/reset_override ]; then
+	exec /etc/rc.button/reset_override
+fi
+
 . /lib/functions.sh
 
 OVERLAY="$( grep ' /overlay ' /proc/mounts )"
