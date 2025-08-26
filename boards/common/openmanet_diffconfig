@@ -118,3 +118,6 @@ CONFIG_PACKAGE_kmod-rt2x00-lib=y
 # Add GOloang
 CONFIG_PACKAGE_golang=y
 CONFIG_PACKAGE_golang-src=y
+
+CONFIG_PACKAGE_dtc=y
+CONFIG_PACKAGE_ptt-go=y

@@ -33,3 +33,4 @@ git-src
 .ccache
 .vscode*
 *.log
+package/ptt-go
