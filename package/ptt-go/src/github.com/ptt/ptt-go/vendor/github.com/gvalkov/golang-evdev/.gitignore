@@ -1,0 +1,6 @@
+*.a
+*.6
+*.out
+*.py[co]
+getioctl
+_obj
