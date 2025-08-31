@@ -1,3 +1,6 @@
+# github.com/digineo/go-uci v0.0.0-20210918132103-37c7b10c14fa
+## explicit; go 1.13
+github.com/digineo/go-uci
 # github.com/gordonklaus/portaudio v0.0.0-20250206071425-98a94950218b
 ## explicit; go 1.18
 github.com/gordonklaus/portaudio

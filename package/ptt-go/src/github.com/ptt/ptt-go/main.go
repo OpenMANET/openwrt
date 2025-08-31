@@ -12,53 +12,96 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/digineo/go-uci"
 	"github.com/gordonklaus/portaudio"
 	"github.com/gvalkov/golang-evdev"
 	"github.com/hraban/opus"
 	"golang.org/x/net/ipv4"
 )
 
+/********* defaults *********/
 const (
-	sampleRate = 48000
-	channels   = 1
-	frameSize  = 960 // 20ms at 48kHz
-
-	// pttKey can now be a string, allowing for "any"
-	// Example: "164" for a specific key, or "any" for any keypress
-	pttKey = "any" // Changed to string
-
-	mcastAddr = "224.0.0.1"
-	mcastPort = 5007
-
-	logPackets = false
+	sampleRate   = 48000
+	channels     = 1
+	frameSize    = 960
+	defaultKey   = "any"
+	defaultIface = "br-ahwlan" // ← use bridge by default; override in UCI if needed
+	defaultG     = "224.0.0.1"
+	defaultPort  = 5007
 )
 
 var (
-	broadcasting    bool
-	recordMutex     sync.Mutex
-	encoder         *opus.Encoder
-	decoder         *opus.Decoder
-	udpSendConn     *net.UDPConn
-	udpRecvConn     *net.UDPConn
-	localIP         string
-	skipOwnPackets  = false
-	playbackBuffer  = make(chan []float32, 2)
-	beepBufferStart = make([]float32, frameSize)
-	beepBufferStop  = make([]float32, frameSize)
+	// codec/network
+    encoder *opus.Encoder
+    decoder *opus.Decoder
+    udpSendConn *net.UDPConn
+    udpRecvConn *net.UDPConn
+	localIP              string
+	playbackBuffer       = make(chan []float32, 2)
+	beepBufferStart      = make([]float32, frameSize)
+	beepBufferStop       = make([]float32, frameSize)
+	broadcastStream      *portaudio.Stream
+	broadcasting         bool
+	recordMutex          sync.Mutex
 
-	// Global variable for the microphone stream
-	broadcastStream *portaudio.Stream
+	// config from UCI (with fallbacks)
+	ifaceName  = defaultIface
+	mcastAddr  = defaultG
+	mcastPort  = defaultPort
+	pttKey     = defaultKey
 )
 
-func main() {
-	var err error
+/********* helpers: UCI *********/
+func loadConfig() {
+	tree := uci.NewTree("/etc/config")
+	if v, ok := tree.Get("pttradio", "main", "iface"); ok && len(v) > 0 && v[0] != "" {
+		ifaceName = v[0]
+	}
+	if v, ok := tree.Get("pttradio", "main", "mcast_addr"); ok && len(v) > 0 && v[0] != "" {
+		mcastAddr = v[0]
+	}
+	if v, ok := tree.Get("pttradio", "main", "mcast_port"); ok && len(v) > 0 {
+		if p, err := strconv.Atoi(v[0]); err == nil {
+			mcastPort = p
+		}
+	}
+	if v, ok := tree.Get("pttradio", "main", "ptt_key"); ok && len(v) > 0 && v[0] != "" {
+		pttKey = v[0]
+	}
+}
 
+/********* helpers: net *********/
+func getIfaceIPv4(name string) (string, *net.Interface, error) {
+	ifi, err := net.InterfaceByName(name)
+	if err != nil {
+		return "", nil, err
+	}
+	addrs, err := ifi.Addrs()
+	if err != nil {
+		return "", nil, err
+	}
+	for _, a := range addrs {
+		if ipn, ok := a.(*net.IPNet); ok && ipn.IP.To4() != nil {
+			return ipn.IP.String(), ifi, nil
+		}
+	}
+	return "", ifi, fmt.Errorf("no IPv4 on iface %s", name)
+}
+
+func joinMulticastGroup(iface *net.Interface, conn *net.UDPConn, group net.IP) error {
+	p := ipv4.NewPacketConn(conn)
+	return p.JoinGroup(iface, &net.UDPAddr{IP: group})
+}
+
+/********* app *********/
+func main() {
+	loadConfig()
+
+	var err error
 	encoder, err = opus.NewEncoder(sampleRate, channels, opus.AppVoIP)
 	check(err)
-	err = encoder.SetBitrate(6000)
-	check(err)
-	err = encoder.SetComplexity(3)
-	check(err)
+	check(encoder.SetBitrate(6000))
+	check(encoder.SetComplexity(3))
 
 	decoder, err = opus.NewDecoder(sampleRate, channels)
 	check(err)
@@ -66,14 +109,14 @@ func main() {
 	check(portaudio.Initialize())
 	defer portaudio.Terminate()
 
-	// --- This is the main playback stream for hearing others and beeps ---
+	// playback stream
 	device := getDeviceByIndex(1)
 	params := portaudio.StreamParameters{
 		Output: portaudio.StreamDeviceParameters{
 			Device:   device,
 			Channels: channels,
 		},
-		SampleRate:      sampleRate,
+		SampleRate:      float64(sampleRate),
 		FramesPerBuffer: frameSize,
 	}
 	playbackStream, err := portaudio.OpenStream(params, func(_, out []float32) {
@@ -87,54 +130,50 @@ func main() {
 		}
 	})
 	check(err)
-	check(playbackStream.Start()) // Start playback stream immediately
-	defer playbackStream.Close()
+	check(playbackStream.Start())
 	defer playbackStream.Stop()
+	defer playbackStream.Close()
 
-	// --- Open the broadcast stream (microphone) here, but DON'T start it ---
-	broadcastStream, err = portaudio.OpenDefaultStream(channels, 0, sampleRate, frameSize, func(in []float32) {
-		// This is the microphone callback logic
+	// mic stream (opened, not started)
+	broadcastStream, err = portaudio.OpenDefaultStream(channels, 0, float64(sampleRate), frameSize, func(in []float32) {
 		pcm := make([]int16, len(in))
 		for i, v := range in {
 			pcm[i] = int16(v * 32767)
 		}
 		buf := make([]byte, 4000)
-		n, err := encoder.Encode(pcm, buf)
-		if err == nil {
-			_, err = udpSendConn.Write(buf[:n])
-			if logPackets && err == nil {
-				log.Printf("📤 Sent %d bytes", n)
-			}
+		if n, err := encoder.Encode(pcm, buf); err == nil {
+			_, _ = udpSendConn.Write(buf[:n])
 		}
 	})
 	check(err)
-	defer broadcastStream.Close() // Ensure it's closed on exit
+	defer broadcastStream.Close()
 
-	// --- Generate beep sounds ---
+	// beeps
 	for i := range beepBufferStart {
-		beepBufferStart[i] = float32(math.Sin(2*math.Pi*1000*float64(i)/sampleRate)) * 0.2
-		beepBufferStop[i] = float32(math.Sin(2*math.Pi*600*float64(i)/sampleRate)) * 0.2
+		beepBufferStart[i] = float32(math.Sin(2*math.Pi*1000*float64(i)/float64(sampleRate))) * 0.2
+		beepBufferStop[i] = float32(math.Sin(2*math.Pi*600*float64(i)/float64(sampleRate))) * 0.2
 	}
 
-	// --- Networking Setup ---
-	localIP = getLocalIP()
-	addr := net.UDPAddr{IP: net.ParseIP(mcastAddr), Port: mcastPort}
-	udpSendConn, err = net.DialUDP("udp", nil, &addr)
+	// networking: bind send to iface IP; listen on :port and join group on iface
+	ifIP, ifi, err := getIfaceIPv4(ifaceName)
+	check(err)
+	localIP = ifIP
+
+	// sender bound to iface IP so traffic egresses that iface
+	dst := &net.UDPAddr{IP: net.ParseIP(mcastAddr), Port: mcastPort}
+	src := &net.UDPAddr{IP: net.ParseIP(ifIP), Port: 0}
+	udpSendConn, err = net.DialUDP("udp4", src, dst)
 	check(err)
 
-	iface, err := net.InterfaceByName("wlan0")
+	// receiver on all, then join group on iface
+	udpRecvConn, err = net.ListenUDP("udp4", &net.UDPAddr{IP: net.IPv4zero, Port: mcastPort})
 	check(err)
-
-	listenAddr := &net.UDPAddr{IP: net.IPv4zero, Port: mcastPort}
-	udpRecvConn, err = net.ListenUDP("udp", listenAddr)
-	check(err)
-	udpRecvConn.SetReadBuffer(65535)
-
-	err = joinMulticastGroup(iface, udpRecvConn, net.ParseIP(mcastAddr))
-	check(err)
+	_ = udpRecvConn.SetReadBuffer(65535)
+	check(joinMulticastGroup(ifi, udpRecvConn, net.ParseIP(mcastAddr)))
 
 	go receiveLoop()
 
+	// PTT input (kept as-is for now)
 	ptt := findPTTDevice()
 	fmt.Println("🎙️ Listening for PTT on:", ptt.Name)
 	go monitorPTT(ptt)
@@ -145,11 +184,6 @@ func main() {
 	fmt.Println("Exiting.")
 }
 
-func joinMulticastGroup(iface *net.Interface, conn *net.UDPConn, group net.IP) error {
-	p := ipv4.NewPacketConn(conn)
-	return p.JoinGroup(iface, &net.UDPAddr{IP: group})
-}
-
 func receiveLoop() {
 	buf := make([]byte, 1500)
 	for {
@@ -158,109 +192,78 @@ func receiveLoop() {
 			log.Println("Recv error:", err)
 			continue
 		}
-		if skipOwnPackets && src.IP.String() == localIP {
-			continue
-		}
-		if logPackets {
-			log.Printf("⬇️ Received %d bytes from %s", n, src.IP)
+		// (optional) drop self
+		if src.IP.IsLoopback() || src.IP.String() == localIP {
+			// pass if testing loopback; otherwise skip
 		}
 
 		frame := make([]byte, n)
 		copy(frame, buf[:n])
 
 		pcm := make([]int16, frameSize)
-		_, err = decoder.Decode(frame, pcm)
-		if err != nil {
+		if _, err = decoder.Decode(frame, pcm); err != nil {
 			continue
 		}
-
 		out := make([]float32, frameSize)
 		for i := range pcm {
 			out[i] = float32(pcm[i]) / 32768
 		}
-
 		select {
 		case playbackBuffer <- out:
-			// Log if the buffer is starting to fill up
-			if len(playbackBuffer) > 2 {
-				log.Printf("🎧 Playback buffer depth: %d", len(playbackBuffer))
-			}
 		default:
-			// This will happen if the buffer is full and a packet has to be dropped
 			log.Println("⚠️ Playback buffer full! Dropping packet.")
 		}
 	}
 }
+
 func monitorPTT(dev *evdev.InputDevice) {
 	for {
 		ev, err := dev.ReadOne()
 		if err != nil {
 			continue
 		}
-
-		isPTTKeyPress := false
-		if ev.Type == evdev.EV_KEY && ev.Value == 1 { // Key press event
-			if pttKey == "any" {
-				isPTTKeyPress = true
-			} else {
-				pttKeyCode, parseErr := strconv.Atoi(pttKey)
-				if parseErr == nil {
-					// Cast pttKeyCode to uint16 for comparison
-					if ev.Code == uint16(pttKeyCode) { 
-						isPTTKeyPress = true
-					}
-				}
-			}
+		isPress := (ev.Type == evdev.EV_KEY && ev.Value == 1)
+		if !isPress {
+			continue
+		}
+		match := false
+		if pttKey == "any" {
+			match = true
+		} else if kc, err := strconv.Atoi(pttKey); err == nil && ev.Code == uint16(kc) {
+			match = true
+		}
+		if !match {
+			continue
 		}
 
-		if isPTTKeyPress {
-			recordMutex.Lock()
-			isBroadcasting := broadcasting
-			recordMutex.Unlock()
+		recordMutex.Lock()
+		isTx := broadcasting
+		recordMutex.Unlock()
 
-			if !isBroadcasting {
-				log.Println("📢 Broadcasting started")
-
-				// Play the start beep locally
-				playbackBuffer <- beepBufferStart
-				// Give the beep time to play before grabbing the mic
-				time.Sleep(200 * time.Millisecond)
-
-				// Start the pre-opened microphone stream
-				err := broadcastStream.Start()
-				if err != nil {
-					log.Printf("❌ Error starting broadcast stream: %v", err)
-				}
-				recordMutex.Lock()
-				broadcasting = true
-				recordMutex.Unlock()
-
-			} else {
-				log.Println("🛑 Broadcasting stopped")
-				// Stop the microphone stream
-				err := broadcastStream.Stop()
-				if err != nil {
-					log.Printf("❌ Error stopping broadcast stream: %v", err)
-				}
-
-				// Play the stop beep locally
-				playbackBuffer <- beepBufferStop
-
-				recordMutex.Lock()
-				broadcasting = false
-				recordMutex.Unlock()
+		if !isTx {
+			playbackBuffer <- beepBufferStart
+			time.Sleep(200 * time.Millisecond)
+			if err := broadcastStream.Start(); err != nil {
+				log.Printf("start mic: %v", err)
 			}
+			recordMutex.Lock(); broadcasting = true; recordMutex.Unlock()
+		} else {
+			if err := broadcastStream.Stop(); err != nil {
+				log.Printf("stop mic: %v", err)
+			}
+			playbackBuffer <- beepBufferStop
+			recordMutex.Lock(); broadcasting = false; recordMutex.Unlock()
 		}
 	}
 }
 
 func getDeviceByIndex(index int) *portaudio.DeviceInfo {
-	devices, err := portaudio.Devices()
+	devs, err := portaudio.Devices()
 	check(err)
-	if len(devices) <= index {
-		log.Fatalf("Device index %d not found; only %d devices available", index, len(devices))
+	if len(devs) <= index {
+		log.Fatalf("Device index %d not found; only %d devices available", index, len(devs))
 	}
-	return devices[index]
+	return devs[index]
 }
 
 func findPTTDevice() *evdev.InputDevice {
@@ -275,23 +278,4 @@ func findPTTDevice() *evdev.InputDevice {
 	return nil
 }
 
-func getLocalIP() string {
-	addrs, err := net.InterfaceAddrs()
-	if err != nil {
-		return "127.0.0.1"
-	}
-	for _, addr := range addrs {
-		if ipnet, ok := addr.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
-			if ipnet.IP.To4() != nil {
-				return ipnet.IP.String()
-			}
-		}
-	}
-	return "127.0.0.1"
-}
-
-func check(err error) {
-	if err != nil {
-		log.Fatal(err)
-	}
-}
+func check(err error) { if err != nil { log.Fatal(err) } }

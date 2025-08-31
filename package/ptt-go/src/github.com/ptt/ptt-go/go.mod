@@ -1,8 +1,6 @@
 module github.com/ptt/ptt-go
 
-go 1.23.0
-
-toolchain go1.24.6
+go 1.18
 
 require (
 	github.com/gordonklaus/portaudio v0.0.0-20250206071425-98a94950218b
@@ -11,4 +9,7 @@ require (
 	golang.org/x/net v0.23.0
 )
 
-require golang.org/x/sys v0.18.0 // indirect
+require (
+	github.com/digineo/go-uci v0.0.0-20210918132103-37c7b10c14fa // indirect
+	golang.org/x/sys v0.18.0 // indirect
+)
