@@ -1,5 +1,4 @@
 # Performance evaluation
-CONFIG_PACKAGE_morse-wavemon=y
 CONFIG_PACKAGE_luci-app-statistics=y
 CONFIG_PACKAGE_collectd-mod-conntrack=y
 CONFIG_PACKAGE_collectd-mod-ipstatistics=y
