@@ -36,7 +36,7 @@ start_service() {
 	[ -f /etc/seccomp/umdns.json ] && procd_set_param seccomp /etc/seccomp/umdns.json
 	procd_set_param respawn
 	procd_open_trigger
-	procd_add_config_trigger "config.change" "umdns" /etc/init.d/umdns reload
+	procd_add_config_trigger "config.change" "umdns" /etc/init.d/umdns restart
 	for n in $network; do
 		procd_add_interface_trigger "interface.*" $n /etc/init.d/umdns reload
 	done
@@ -46,7 +46,7 @@ start_service() {
 	procd_close_instance
 }
 
-service_started() {
+service_running() {
 	ubus -t 10 wait_for umdns
 	[ $? = 0 ] && reload_service
 }

@@ -1,0 +1,25 @@
+From 8a0c9db006ad7772889f08604455f5f89ac79849 Mon Sep 17 00:00:00 2001
+From: Felix Fietkau <nbd@nbd.name>
+Date: Fri, 5 Jan 2024 22:13:02 +0100
+Subject: [PATCH 01/12] interface: add missing cache cleanup on interface free
+
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+---
+ interface.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/interface.c b/interface.c
+index ca4b0b3..ad25b39 100644
+--- a/interface.c
++++ b/interface.c
+@@ -164,6 +164,7 @@ static struct interface *interface_lookup(unsigned int ifindex, enum umdns_socke
+ 
+ static void interface_free(struct interface *iface)
+ {
++	cache_cleanup(iface);
+ 	announce_free(iface);
+ 	free(iface->addrs.v4);
+ 	free(iface);
+-- 
+2.34.1
+

@@ -15,9 +15,6 @@ CONFIG_PACKAGE_morse-mgmt-iface=y
 CONFIG_PACKAGE_wizard-config=y
 CONFIG_PACKAGE_luci-app-morseapwizard=y
 CONFIG_PACKAGE_luci-app-halowlink1guide=y
-CONFIG_PACKAGE_morse-led-artini=y
-CONFIG_MORSE_REGDB_COUNTRY_CODE_FILTER="US|AU"
-CONFIG_MORSE_REGDB_CHANNEL_NEGATIVE_FILTER="1|2|50|51"
-
-# Adding ThinLMAC fw to devices that have space.
-CONFIG_PACKAGE_morse-fw-tlm=y
+CONFIG_PACKAGE_mt7603e-txpat-artini=y
+CONFIG_PACKAGE_morse-fw-6108-tlm=y
+CONFIG_MORSE_REGDB_COUNTRY_CODE_FILTER="US|AU|CA"

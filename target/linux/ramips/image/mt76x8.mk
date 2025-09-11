@@ -1070,7 +1070,7 @@ define Device/morse_ekh03
   DEVICE_IMG_NAME = $$(IMAGE_PREFIX)-$$(1)-$$(2)
   DEVICE_PACKAGES := kmod-usb2 kmod-usb-ohci kmod-usb-ledtrig-usbport \
 	kmod-mmc-mt7620 kmod-i2c-mt7628 \
-	kmod-morse netifd-morse \
+	kmod-morse netifd-morse morse-fw-6108 \
 	uboot-envtools
 endef
 

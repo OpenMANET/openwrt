@@ -458,6 +458,15 @@ define Device/glinet_gl-mt3000
   DEVICE_DTS := mt7981b-glinet-gl-mt3000
   DEVICE_DTS_DIR := ../dts
   SUPPORTED_DEVICES += glinet,mt3000-snand
+
+  # Just rename the image name for now.
+  __MM_DEVICE_VENDOR := MorseMicro
+  __MM_DEVICE_MODEL := MM8108-EKH19
+  __MM_DEVICE_VARIANT := 01
+  __MM_DEVICE_TITLE = $$(__MM_DEVICE_VENDOR) $$(__MM_DEVICE_MODEL) $$(__MM_DEVICE_VARIANT)
+  IMAGE_PREFIX = $$(VERSION_DIST_SANITIZED)-$$(IMG_PREFIX_VERCODE)$$(IMG_PREFIX_EXTRA)$$(call sanitize,$$(__MM_DEVICE_TITLE))
+  DEVICE_IMG_NAME = $$(IMAGE_PREFIX)-$$(1)-$$(2)
+
   DEVICE_PACKAGES := kmod-mt7981-firmware mt7981-wo-firmware kmod-hwmon-pwmfan kmod-usb3
   UBINIZE_OPTS := -E 5
   BLOCKSIZE := 128k

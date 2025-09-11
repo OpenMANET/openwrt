@@ -5,6 +5,12 @@
 
 set -ue -o pipefail
 
+error_handler() {
+    2>&1 echo "SETUP FAILED: error $? on line ${BASH_LINENO[0]} from: ${BASH_COMMAND}"
+}
+
+trap error_handler ERR
+
 usage(){
     cat << EOF
 
@@ -47,13 +53,13 @@ Usage:
 
 EOF
     echo -e "Available extra (-x) options:\n"
-	ls -1 boards/common_extras | sed 's/\(.*\)_diffconfig/  \1/'
-	echo
+    ls -1 boards/common_extras | sed 's/\(.*\)_diffconfig/  \1/'
+    echo
     echo -e "Available board (-b) options (can use build name or individual targets):\n"
     for b in boards/*; do
         if [ -e "$b/target_diffconfig" ]; then
             echo "  $(basename $b)"
-            sed -n 's/CONFIG_TARGET_.*_DEVICE_.*_\(.*\)=y/    \1/p' $b/target_diffconfig
+            sed -n 's/CONFIG_TARGET_.*_DEVICE_\(.*\)_\(.*\)=y/    \2 (\1 \2)/p' $b/target_diffconfig
             echo
         fi
     done
@@ -65,21 +71,29 @@ download_toolchain(){
     mkdir -p tmp
     mkdir -p tmp/dl
     gcc_vers="$(sed -nE 's/^CONFIG_GCC_VERSION=\"([^\"]+)\"/\1/p' .config)"
-    arch="$(sed -nE 's/^CONFIG_TARGET_ARCH_PACKAGES=\"([^\"]+)\"/\1/p' .config)"
+    arch="$(sed -nE 's/^CONFIG_ARCH=\"([^\"]+)\"/\1/p' .config)"
+    cpu_type="$(sed -nE 's/^CONFIG_CPU_TYPE=\"([^\"]+)\"/\1/p' .config)"
+    if [ -n "$cpu_type" ]; then
+        arch_suffix="_${cpu_type}"
+    fi
     libc="$(sed -nE 's/^CONFIG_LIBC=\"([^\"]+)\"/\1/p' .config)"
     base_url="$(sed -nE 's/^CONFIG_VERSION_REPO=\"([^\"]+)\"/\1/p' .config)"
     vers=${base_url%%/}
     vers=${vers##http*/}
-    toolchain_archive="openwrt-toolchain-${vers}-${target}-${subtarget}_gcc-${gcc_vers}_${libc}.Linux-x86_64"
+    libc_suffix=
+    if grep -q '^CONFIG_arm=y' .config; then
+        libc_suffix=_eabi
+    fi
+    toolchain_archive="openwrt-toolchain-${vers}-${target}-${subtarget}_gcc-${gcc_vers}_${libc}${libc_suffix}.Linux-x86_64"
 
     if [ -n "${INSTALL_PATH}" ]; then
         [ ! -d "${INSTALL_PATH}" ] && mkdir -p "${INSTALL_PATH}"
         TAR_STRIP="--strip-components=2"
-        SUB_FOLDER="${toolchain_archive}/toolchain-${arch}_gcc-${gcc_vers}_${libc}"
+        SUB_FOLDER="${toolchain_archive}/toolchain-${arch}${arch_suffix}_gcc-${gcc_vers}_${libc}${libc_suffix}"
         TOOLCHAIN_PATH=${INSTALL_PATH}
     else
         INSTALL_PATH="/opt"
-        TOOLCHAIN_PATH="/opt/${toolchain_archive}/toolchain-${arch}_gcc-${gcc_vers}_${libc}"
+        TOOLCHAIN_PATH="/opt/${toolchain_archive}/toolchain-${arch}${arch_suffix}_gcc-${gcc_vers}_${libc}${libc_suffix}"
         SUB_FOLDER=""
         TAR_STRIP=""
     fi
@@ -199,9 +213,7 @@ if [ "${INITIALIZE}" ]; then
     ./scripts/feeds update -i
     ./scripts/feeds install -p morse -a
     ./scripts/feeds install -a
-    ./scripts/feeds uninstall iwinfo
-
-    # For ALL_KMODS to build, we need to remove xtables-addons as it fails to
+    
     # compile when using an external toolchain due to a bug in 998b6d4.
     # The bug is fixed in the upstream 3856074, but not pulled into 23.
     ./scripts/feeds uninstall xtables-addons

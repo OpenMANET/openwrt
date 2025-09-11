@@ -9,6 +9,17 @@
 	compatible = "glinet,gl-x750", "qca,qca9531";
 	model = "GL.iNet GL-X750";
 
+	gpio-export {
+		compatible = "gpio-export";
+		#size-cells = <0>;
+
+		gpio_usb_power {
+			gpio-export,name = "usb_power";
+			gpio-export,output = <0>;
+			gpios = <&gpio 2 GPIO_ACTIVE_LOW>;
+		};
+	};
+
 	keys {
 		compatible = "gpio-keys";
 

@@ -211,7 +211,7 @@ define Device/morse_ekh01
   SYSINFO_BOARD_NAME := morse,ekh01
   SUPPORTED_DEVICES := morse,ekh01 morse,ekh01-05us
   SPI_OVERLAY := mm610x-spi
-  DEVICE_PACKAGES += kmod-morse netifd-morse
+  DEVICE_PACKAGES += kmod-morse netifd-morse morse-fw-6108 morse-fw-8108
   IMAGE/sysupgrade.img.gz := boot-common | boot-2711 | boot-ekh01 | sdcard-img | gzip | append-metadata
   IMAGE/factory.img.gz := boot-common | boot-2711 | boot-ekh01 | sdcard-img | gzip
 endef
@@ -252,30 +252,17 @@ ifeq ($(SUBTARGET),bcm2711)
   TARGET_DEVICES += morse_ekh01-03
 endif
 
-define Device/morse_ekh01-mf13455
+define Device/morse_ekh01-01
   $(Device/morse_ekh01)
   DEVICE_MODEL := MM8108-EKH01
-  DEVICE_VARIANT := mf13455
-  SYSINFO_MODEL := MorseMicro EKH01-mf13455
-  SYSINFO_BOARD_NAME := morse,ekh01-mf13455
-  SUPPORTED_DEVICES := morse,ekh01-mf13455
+  DEVICE_VARIANT := 01
+  SYSINFO_MODEL := MorseMicro EKH01-01
+  SYSINFO_BOARD_NAME := morse,ekh01-01
+  SUPPORTED_DEVICES := morse,ekh01-01
   SPI_OVERLAY := mm810x-spi
 endef
 ifeq ($(SUBTARGET),bcm2711)
-  TARGET_DEVICES += morse_ekh01-mf13455
-endif
-
-define Device/morse_ekh01-mf15457
-  $(Device/morse_ekh01)
-  DEVICE_MODEL := MM8108-EKH01
-  DEVICE_VARIANT := mf15457
-  SYSINFO_MODEL := MorseMicro EKH01-mf15457
-  SYSINFO_BOARD_NAME := morse,ekh01-mf15457
-  SUPPORTED_DEVICES := morse,ekh01-mf15457
-  SPI_OVERLAY := mm810x-spi
-endef
-ifeq ($(SUBTARGET),bcm2711)
-  TARGET_DEVICES += morse_ekh01-mf15457
+  TARGET_DEVICES += morse_ekh01-01
 endif
 
 $(eval $(call BuildImage))

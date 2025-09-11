@@ -55,6 +55,7 @@ TARGET_CFLAGS += -I$(STAGING_DIR)/usr/include
 
 CMAKE_OPTIONS += \
 	-DLUAPATH=/usr/lib/lua \
+	-DUBUS_MAX_MSGLEN=16777216 \
 	-DABIVERSION="$(PKG_ABI_VERSION)"
 
 define Package/ubus/install

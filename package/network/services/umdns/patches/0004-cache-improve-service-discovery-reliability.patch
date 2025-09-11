@@ -1,0 +1,55 @@
+From c5ca22a71b2ecb83a2a28b46391dac443be315c2 Mon Sep 17 00:00:00 2001
+From: Felix Fietkau <nbd@nbd.name>
+Date: Mon, 10 Feb 2025 21:25:54 +0100
+Subject: [PATCH 12/13] cache: improve service discovery reliability
+
+Send queries for non-host PTR services out to all interfaces instead of
+just the one that they were first discovered on.
+When updating, go through all non-host service entries and send a query.
+When host records expire while non-host service entries remain, queries
+were not automatically re-sent, causing some services with lower TTL to
+be missed.
+
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+---
+ cache.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
+
+diff --git a/cache.c b/cache.c
+index 2412ed2..55a0e16 100644
+--- a/cache.c
++++ b/cache.c
+@@ -142,11 +142,16 @@ void cache_cleanup(struct interface *iface)
+ void
+ cache_update(void)
+ {
++	struct cache_service *s;
+ 	struct interface *iface;
+ 
+ 	vlist_for_each_element(&interfaces, iface, node) {
+-		dns_send_question(iface, NULL, C_DNS_SD, TYPE_ANY, 0);
+-		dns_send_question(iface, NULL, C_DNS_SD, TYPE_PTR, 0);
++		dns_send_question(iface, NULL, C_DNS_SD, TYPE_ANY, interface_multicast(iface));
++		dns_send_question(iface, NULL, C_DNS_SD, TYPE_PTR, interface_multicast(iface));
++		avl_for_each_element(&services, s, avl)
++			if (!s->host)
++				dns_send_question(iface, NULL, s->entry, TYPE_PTR,
++						  interface_multicast(iface));
+ 	}
+ }
+ 
+@@ -186,7 +191,10 @@ cache_service(struct interface *iface, char *entry, int hlen, int ttl)
+ 		s->avl.key = type;
+ 	avl_insert(&services, &s->avl);
+ 
+-	if (!hlen)
++	if (hlen)
++		return s;
++
++	vlist_for_each_element(&interfaces, iface, node)
+ 		dns_send_question(iface, NULL, entry, TYPE_PTR, interface_multicast(iface));
+ 
+ 	return s;
+-- 
+2.34.1
+

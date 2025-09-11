@@ -223,7 +223,10 @@ start_instance()
 	done
 
 	config_get_bool mdns "$cfg" mdns 1
-	[ "$mdns" -ne 0 ] && procd_add_mdns "http" "tcp" "80" "daemon=uhttpd"
+	if [ "$mdns" -ne 0 ]; then
+		config_get mdns_txt "$cfg" mdns_txt
+		procd_add_mdns http tcp 80 daemon=uhttpd $mdns_txt
+	fi
 
 	procd_close_instance
 }
