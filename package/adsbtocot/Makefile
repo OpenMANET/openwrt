@@ -6,6 +6,7 @@ PKG_MAINTAINER:=info@openmanet.net
 PKG_LICENSE:=MIT
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 HOST_BUILD_DEPENDS:=python3/host
+PKGARCH:=all
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -13,7 +14,7 @@ define Package/adsbtocot
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=ADS-B to Cursor-on-Target (ADSBCOT) for OpenWrt (dump1090 local)
-  DEPENDS:=+python3 +python3-pip +python3-setuptools +python3-wheel +dump1090
+  DEPENDS:=+python3 +dump1090
 endef
 
 define Package/adsbtocot/description
