@@ -1,44 +1,25 @@
 #!/bin/sh
-# Configure dump1090 to use local RTL-SDR and expose Beast/SBS over loopback,
-# then enable and start ADSBCOT.
-
-# Make idempotent
 [ -f /etc/adsbcot/.defaults_applied ] && exit 0
 
-# Enable dump1090 with local dongle (no rtl_tcp), network outputs on loopback
 uci -q batch <<'EOF'
 set dump1090.main=dump1090
 set dump1090.main.enabled='1'
-set dump1090.main.respawn='1'
-
-# Use local RTL-SDR directly
+set dump1090.main.disabled='0'
 set dump1090.main.net_only='0'
-
-# Networking outputs
 set dump1090.main.net='1'
-set dump1090.main.net_ri_port='30001'
-set dump1090.main.net_ro_port='30002'
 set dump1090.main.net_sbs_port='30003'
 set dump1090.main.net_bo_port='30005'
-
-# Useful decode options (tune as needed)
+set dump1090.main.device_index='0'
 set dump1090.main.gain='max'
-set dump1090.main.fix='1'
-set dump1090.main.metric='1'
-set dump1090.main.modeac='0'
-
-# JSON + web (optional)
 set dump1090.main.write_json='/var/run/dump1090'
 set dump1090.main.write_json_every='1'
-set dump1090.main.html_dir='/usr/share/dump1090'
-
+delete dump1090.main.html_dir
 commit dump1090
 EOF
 
 /etc/init.d/dump1090 enable
 /etc/init.d/dump1090 restart
 
-# Start ADSBCOT
 /etc/init.d/adsbcot enable
 /etc/init.d/adsbcot restart
 
