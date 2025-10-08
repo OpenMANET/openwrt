@@ -19,6 +19,11 @@ For example, Using seeedstudio's WiFi Halow Modules on Raspberry Pi.
 > ./scripts/morse_setup.sh -i -b ekh01
 ```
 
+Run this to download all dependencies before starting a build.  It will make building more reliable.
+```
+> make download
+```
+
 After configuration is complete, run the build with
 ```
 > make -j8
