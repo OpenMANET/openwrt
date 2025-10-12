@@ -4,15 +4,15 @@
 . /lib/functions.sh
 
 fix_bcf_default() {
-    local config="$1"
-    config_get type "$config" type
+	local config="$1"
+	config_get type "$config" type
 	[ "morse" = "$type" ] || return 1
 
-    # Determine the correct BCF file based on the board name
-    # board_name is defined in /lib/functions.sh
-    # You can find the board name by running `cat /tmp/sysinfo/board_name`
-    board=$(board_name)
-    case "$board" in
+	# Determine the correct BCF file based on the board name
+	# board_name is defined in /lib/functions.sh
+	# You can find the board name by running `cat /tmp/sysinfo/board_name`
+	board=$(board_name)
+	case "$board" in
 		morse,ekh01-03 |\
 		morse,ekh03v3)
 			bcf=bcf_mf08551.bin
