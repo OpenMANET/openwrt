@@ -32,10 +32,10 @@ fix_bcf_default() {
 		morse,ekh01-01)
 			bcf=bcf_mf15457.bin
 		;;
-        # This is the default build target for OpenMANET
-        morse,ekh01)
-            bcf=bcf_fgh100mhaamd.bin
-        ;;
+		# This is the default build target for OpenMANET
+		morse,ekh01)
+			bcf=bcf_fgh100mhaamd.bin
+		;;
 	esac
 
 	[ -z "$bcf" ] && return 0
