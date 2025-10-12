@@ -1,0 +1,50 @@
+#!/bin/sh
+# Apply defaults for Morse Micro radio without overwriting existing settings
+
+. /lib/functions.sh
+
+fix_bcf_default() {
+    local config="$1"
+    config_get type "$config" type
+	[ "morse" = "$type" ] || return 1
+
+    # Determine the correct BCF file based on the board name
+    # board_name is defined in /lib/functions.sh
+    # You can find the board name by running `cat /tmp/sysinfo/board_name`
+    board=$(board_name)
+    case "$board" in
+		morse,ekh01-03 |\
+		morse,ekh03v3)
+			bcf=bcf_mf08551.bin
+		;;
+		morse,ekh01v1)
+			bcf=bcf_mf03120.bin
+		;;
+		morse,ekh01v2)
+			bcf=bcf_mf08251.bin
+		;;
+		morse,ekh04v6)
+			bcf=bcf_ekh04_v6.bin
+		;;
+		morse,artini)
+			bcf=bcf_mm_hl1.bin
+		;;
+		morse,ekh01-01)
+			bcf=bcf_mf15457.bin
+		;;
+        # This is the default build target for OpenMANET
+        morse,ekh01)
+            bcf=bcf_fgh100mhaamd.bin
+        ;;
+	esac
+
+	[ -z "$bcf" ] && return 0
+
+	uci -q set wireless."${config}".bcf="${bcf}"
+    uci -q set wireless."${config}".enable_mcast_whitelist=0
+    uci -q set wireless."${config}".country='US'
+}
+
+config_load wireless
+config_foreach fix_bcf_default wifi-device
+uci commit wireless
