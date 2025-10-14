@@ -39,6 +39,10 @@ delete dump1090.main.forward_mlat
 commit dump1090
 EOF
 
+/etc/init.d/adsbcot stop
+/etc/init.d/adsbcot disable
+/etc/init.d/dump1090 stop
+/etc/init.d/dump1090 disable
 
 touch /etc/adsbcot/.defaults_applied
 exit 0
