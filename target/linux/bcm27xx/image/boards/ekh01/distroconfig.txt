@@ -12,6 +12,7 @@ dtoverlay=disable-bt
 dtoverlay=disable-bt
 [pi4]
 dtoverlay=miniuart-bt
+dtoverlay=pcie-32bit-dma
 
 [all]
 # Disable overscan assuming the display supports displaying the full resolution
