@@ -1,0 +1,2 @@
+// arm64 wrapper so the -w DTB exists
+#include "../../../../arm/boot/dts/bcm2710-rpi-zero-2-w.dts"
