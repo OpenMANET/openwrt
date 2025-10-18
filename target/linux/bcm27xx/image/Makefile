@@ -265,40 +265,49 @@ ifeq ($(SUBTARGET),bcm2711)
   TARGET_DEVICES += morse_ekh01-01
 endif
 
-# -------- OpenMANET Pi 3 (BCM2710) with EKH01-style boot/sysinfo/overlay --------
+# -------- OpenMANET Pi 3 + Zero2/Zero2W (BCM2710, 64bit) with EKH01-style boot --------
 define Device/rpi-3-om
   $(Device/rpi-3)
 
   DEVICE_VENDOR := OpenMANET
-  DEVICE_MODEL := RPi3-OM
+  DEVICE_MODEL := 3/Zero2/Zero2W (OM)
   DEVICE_VARIANT := (64bit)
+  KERNEL_IMG := kernel8.img
 
-  # Put OpenMANET board identity into DT at early boot (read by 01_sysinfo)
+  # Identity for early boot sysinfo (read by 01_sysinfo)
   SYSINFO_MODEL := OpenMANET RPi3-OM
   SYSINFO_BOARD_NAME := openmanet,rpi-3-om
 
-  # Reuse the EKH01 boot step to inject sysinfo + interface overlay into /boot/distroconfig.txt.
-  # For SDIO, point this at your SDIO overlay (change to mm810x-sdio if you're using MM8108).
+  # Use SDIO for Morse Micro; switch to mm810x-sdio if needed
   SPI_OVERLAY := mm610x-sdio
 
-  # IMPORTANT: Reset device packages so we don't inherit the Broadcom/Cypress Wi-Fi stack from rpi-3.
+  # DTS set mirrors your working diff (adds Zero2/Zero2W arm64 DTBs under broadcom/)
+  DEVICE_DTS := \
+        broadcom/bcm2710-rpi-2-b \
+        broadcom/bcm2710-rpi-3-b broadcom/bcm2710-rpi-3-b-plus \
+        broadcom/bcm2710-rpi-cm3 \
+        broadcom/bcm2710-rpi-zero-2 broadcom/bcm2710-rpi-zero-2-w
+
+  # Extend supported IDs to include Zero2/Zero2W just like your diff
+  SUPPORTED_DEVICES := \
+        rpi-3-b rpi-3-b-plus \
+        rpi-zero-2 rpi-zero-2-w \
+        raspberrypi,2-model-b-rev2 \
+        raspberrypi,3-model-b raspberrypi,3-model-b-plus \
+        raspberrypi,3-compute-module raspberrypi,compute-module-3 \
+        raspberrypi,model-zero-2 raspberrypi,model-zero-2-w \
+        openmanet,rpi-3-om
+
+  # Replace Broadcom Wi-Fi with Morse Micro stack
   DEVICE_PACKAGES := \
         kmod-morse netifd-morse morse-fw-6108 morse-fw-8108 \
         morse-board-config-hotplug-model morsectrl \
         kmod-of-mdio \
         wpad-basic-mbedtls
 
-  # If you *do* want to keep the built-in Pi3 Wi-Fi for other uses, add back:
-  #   cypress-firmware-43430-sdio brcmfmac-nvram-43430-sdio kmod-brcmfmac
-  # but usually it's best to omit those when using the MM SDIO card to avoid confusion.
-
-  # Use the BCM2708/2710 boot blobs like the rpi-3, but add the EKH01 boot step.
-  # (Pi3 uses kernel8.img already in rpi-3.)
+  # Add EKH01 step so /boot/distroconfig.txt gets sysinfo + SDIO overlay
   IMAGE/sysupgrade.img.gz := boot-common | boot-2708 | boot-ekh01 | sdcard-img | gzip | append-metadata
-  IMAGE/factory.img.gz := boot-common | boot-2708 | boot-ekh01 | sdcard-img | gzip
-
-  # Make upgrades work: include our board name in supported IDs.
-  SUPPORTED_DEVICES := openmanet,rpi-3-om
+  IMAGE/factory.img.gz :=    boot-common | boot-2708 | boot-ekh01 | sdcard-img | gzip
 endef
 ifeq ($(SUBTARGET),bcm2710)
   TARGET_DEVICES += rpi-3-om
