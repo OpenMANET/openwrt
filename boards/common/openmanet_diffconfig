@@ -122,6 +122,11 @@ CONFIG_PACKAGE_golang-src=y
 # Multicast Routing Support
 CONFIG_PACKAGE_smcroute=y
 
+# B.A.T.M.A.N. Advanced Alfred
+CONFIG_PACKAGE_alfred=y
+CONFIG_PACKAGE_alfred_gpsd=y
+CONFIG_PACKAGE_alfred_bathosts=y
+
 # Added for ADSB to COT
 CONFIG_PACKAGE_adsbtocot=y
 CONFIG_PACKAGE_dump1090=y
