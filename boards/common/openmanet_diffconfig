@@ -122,7 +122,7 @@ CONFIG_PACKAGE_golang-src=y
 # B.A.T.M.A.N. Advanced Alfred
 CONFIG_PACKAGE_ALFRED_GPSD=y
 CONFIG_PACKAGE_ALFRED_BATHOSTS=y
-CONFIG_PACKAGE_alfred-openmanet=y
+CONFIG_PACKAGE_alfred=y
 
 # Added for ADSB to COT
 CONFIG_PACKAGE_adsbtocot=y
