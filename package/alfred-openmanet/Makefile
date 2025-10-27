@@ -6,7 +6,7 @@ PKG_NAME:=alfred-openmanet
 PKG_VERSION:=2023.1
 PKG_RELEASE:=1
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+PKG_SOURCE:=alfred-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://downloads.open-mesh.org/batman/releases/batman-adv-$(PKG_VERSION)
 PKG_HASH:=438048248f373757d3a8bde7cbc6db6685f4d0105d130da2f5a54f29090c6974
 
@@ -26,7 +26,7 @@ PKG_CONFIG_DEPENDS += \
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/alfred-openmanet
+define Package/alfred
   SECTION:=net
   CATEGORY:=Network
   TITLE:=A.L.F.R.E.D. - Almighty Lightweight Fact Remote Exchange Daemon
@@ -36,7 +36,7 @@ define Package/alfred-openmanet
             +ALFRED_NEEDS_libgps:libgps
 endef
 
-define Package/alfred-openmanet/description
+define Package/alfred/description
   alfred is a user space daemon for distributing arbitrary local information
   over the mesh/network in a decentralized fashion. This data can be anything
   which appears to be useful - originally designed to replace the batman-adv
@@ -52,11 +52,11 @@ define Package/alfred-openmanet/description
   information available from all alfred servers in the network.
 endef
 
-define Package/alfred-openmanet/conffiles
+define Package/alfred/conffiles
 /etc/config/alfred
 endef
 
-define Package/alfred-openmanet/config
+define Package/alfred/config
 	source "$(SOURCE)/Config.in"
 endef
 
@@ -81,4 +81,4 @@ define Package/alfred/install
 	[ "x$(CONFIG_PACKAGE_ALFRED_BATHOSTS)" == "xy" ] && $(INSTALL_BIN) ./files/bat-hosts.lua $(1)/etc/alfred/bat-hosts.lua ; true
 endef
 
-$(eval $(call BuildPackage,alfred-openmanet))
+$(eval $(call BuildPackage,alfred))
