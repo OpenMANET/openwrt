@@ -14,14 +14,31 @@ jobs:
       fail-fast: false
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
 
       - name: Determine branch name
         run: |
-          BRANCH="${GITHUB_BASE_REF#refs/heads/}"
+          if [ -n "$GITHUB_BASE_REF" ]; then
+            BRANCH="${GITHUB_BASE_REF#refs/heads/}"
+          else
+            BRANCH="${{ github.base_ref }}"
+          fi
+          if [ -z "$BRANCH" ] || [ "$BRANCH" = "HEAD" ]; then
+            # Fallback for local act testing - try to find a sensible base branch
+            # First try to find a remote branch that matches our current state
+            BRANCH=$(git for-each-ref --format='%(refname:short)' refs/remotes/origin/ | grep -v HEAD | head -1 | sed 's|origin/||')
+            # If that fails, use a default
+            if [ -z "$BRANCH" ]; then
+              BRANCH="mm/v23.05.5"
+            fi
+          fi
+          if [ -z "$BRANCH" ]; then
+            echo "Error: Could not determine base branch"
+            exit 1
+          fi
           echo "Building for $BRANCH"
           echo "BRANCH=$BRANCH" >> $GITHUB_ENV
 
@@ -62,7 +79,8 @@ jobs:
               RET=1
             fi
 
-            if echo "$body" | grep -v "Signed-off-by:"; then
+            body_without_sob="$(echo "$body" | grep -v "Signed-off-by:" || true)"
+            if [ -n "$body_without_sob" ]; then
               success "A commit message exists"
             else
               err "Missing commit message. Please describe your changes"
