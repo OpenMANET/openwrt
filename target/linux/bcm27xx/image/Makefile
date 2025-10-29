@@ -20,7 +20,7 @@ define Build/boot-common
 	rm -f $@.boot
 	mkfs.fat -n boot -C $@.boot $(FAT32_BLOCKS)
 	mcopy -i $@.boot $(KDIR)/COPYING.linux ::
-	mcopy -i $@.boot $(KDIR)/LICENCE.broadcom ::
+# 	mcopy -i $@.boot $(KDIR)/LICENCE.broadcom ::
 	mcopy -i $@.boot cmdline.txt ::
 	mcopy -i $@.boot config.txt ::
 	mcopy -i $@.boot distroconfig.txt ::
@@ -278,8 +278,8 @@ define Device/rpi-3-om
   SYSINFO_MODEL := OpenMANET RPi3-OM
   SYSINFO_BOARD_NAME := openmanet,rpi-3-om
 
-  # Use SDIO for Morse Micro; switch to mm810x-sdio if needed
-  SPI_OVERLAY := mm610x-sdio
+  # Use SPI for Morse Micro; switch to mm810x-sdio if needed
+  SPI_OVERLAY := mm610x-spi
 
   # DTS set mirrors your working diff (adds Zero2/Zero2W arm64 DTBs under broadcom/)
   DEVICE_DTS := \
