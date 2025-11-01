@@ -20,7 +20,7 @@ GO_PKG:=github.com/openmanet/manager
 GO_PKG_LDFLAGS_X:=cmd.Version=$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
-include ../lang/golang/golang-package.mk
+include ../../feeds/packages/lang/golang/golang-package.mk
 
 define Package/openmanet
   SECTION:=utils
