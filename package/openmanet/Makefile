@@ -6,6 +6,8 @@ PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/openmanet/manager/tar.gz/$(PKG_VERSION)?
+PKG_SOURCE_VERSION:=$(PKG_VERSION)
+PKG_HASH:=skip
 
 PKG_LICENSE:=MIT
 PKG_MAINTAINER:=Corey Wagehoft
