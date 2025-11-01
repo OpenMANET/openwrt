@@ -118,7 +118,7 @@ CONFIG_PACKAGE_kmod-rt2x00-lib=y
 # Add golang support
 CONFIG_PACKAGE_golang=y
 CONFIG_PACKAGE_golang-src=y
-CONFIG_PACKAGE_openmanet=y
+CONFIG_PACKAGE_openmanetd=y
 
 # B.A.T.M.A.N. Advanced Alfred
 CONFIG_PACKAGE_ALFRED_GPSD=y
