@@ -18,7 +18,7 @@ PKG_BUILD_FLAGS:=no-mips16
 
 GO_PKG:=github.com/openmanet/manager
 # GO_PKG_EXCLUDES:=test
-GO_PKG_LDFLAGS_X:=cmd.Version=$(PKG_VERSION)
+# GO_PKG_LDFLAGS_X:=cmd.Version=$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
 include ../../feeds/packages/lang/golang/golang-package.mk
