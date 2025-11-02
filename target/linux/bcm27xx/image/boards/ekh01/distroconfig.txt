@@ -13,8 +13,6 @@ dtoverlay=disable-bt
 [pi4]
 dtoverlay=miniuart-bt
 [cm4]
-# Disable Broadcomm wifi
-dtoverlay=disable-wifi
 # This overlay is used to allow m.2 wifi cards
 dtoverlay=pcie-32bit-dma
 # Enable USB ports on carrier cards
