@@ -32,8 +32,6 @@ Signed-off-by: Carl Huang <quic_cjhuang@quicinc.com>
  drivers/net/wireless/ath/ath11k/mac.c  | 62 +++++++++++++++++---------
  4 files changed, 53 insertions(+), 26 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/core.c b/drivers/net/wireless/ath/ath11k/core.c
-index bebfd342e28b..739a8d13d57d 100644
 --- a/drivers/net/wireless/ath/ath11k/core.c
 +++ b/drivers/net/wireless/ath/ath11k/core.c
 @@ -120,6 +120,7 @@ static const struct ath11k_hw_params ath11k_hw_params[] = {
@@ -127,8 +125,7 @@ index bebfd342e28b..739a8d13d57d 100644
  	},
  };
  
-diff --git a/drivers/net/wireless/ath/ath11k/hw.c b/drivers/net/wireless/ath/ath11k/hw.c
-index d7b5ec6e6904..3b56ba1b8534 100644
+
 --- a/drivers/net/wireless/ath/ath11k/hw.c
 +++ b/drivers/net/wireless/ath/ath11k/hw.c
 @@ -58,7 +58,7 @@ static void ath11k_hw_wcn6855_tx_mesh_enable(struct ath11k_base *ab,
@@ -140,8 +137,7 @@ index d7b5ec6e6904..3b56ba1b8534 100644
  	config->num_peers = 16;
  	config->num_tids = 32;
  
-diff --git a/drivers/net/wireless/ath/ath11k/hw.h b/drivers/net/wireless/ath/ath11k/hw.h
-index f5533630a7f9..40ed5608fe81 100644
+
 --- a/drivers/net/wireless/ath/ath11k/hw.h
 +++ b/drivers/net/wireless/ath/ath11k/hw.h
 @@ -225,6 +225,7 @@ struct ath11k_hw_params {
@@ -152,8 +148,7 @@ index f5533630a7f9..40ed5608fe81 100644
  };
  
  struct ath11k_hw_ops {
-diff --git a/drivers/net/wireless/ath/ath11k/mac.c b/drivers/net/wireless/ath/ath11k/mac.c
-index 8c77ade49437..3a9494bc944c 100644
+
 --- a/drivers/net/wireless/ath/ath11k/mac.c
 +++ b/drivers/net/wireless/ath/ath11k/mac.c
 @@ -9287,28 +9287,46 @@ static int ath11k_mac_setup_iface_combinations(struct ath11k *ar)
