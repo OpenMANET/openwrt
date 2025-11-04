@@ -265,4 +265,65 @@ ifeq ($(SUBTARGET),bcm2711)
   TARGET_DEVICES += morse_ekh01-01
 endif
 
+# -------- OpenMANET Pi 3 + Zero2/Zero2W (BCM2710, 64bit) with EKH01-style boot --------
+define Device/rpi-3-om
+  $(Device/rpi-3)
+
+  DEVICE_VENDOR := OpenMANET
+  DEVICE_MODEL := 3/Zero2/Zero2W (OM)
+  DEVICE_VARIANT := (64bit)
+  KERNEL_IMG := kernel8.img
+
+  # Identity for early boot sysinfo (read by 01_sysinfo)
+  SYSINFO_MODEL := OpenMANET RPi3-OM
+  SYSINFO_BOARD_NAME := openmanet,rpi-3-om
+
+  # Use SPI for Morse Micro; switch to mm810x-sdio if needed
+  SPI_OVERLAY := mm610x-spi
+
+  # DTS set mirrors your working diff (adds Zero2/Zero2W arm64 DTBs under broadcom/)
+  DEVICE_DTS := \
+        broadcom/bcm2710-rpi-2-b \
+        broadcom/bcm2710-rpi-3-b broadcom/bcm2710-rpi-3-b-plus \
+        broadcom/bcm2710-rpi-cm3 \
+        broadcom/bcm2710-rpi-zero-2 broadcom/bcm2710-rpi-zero-2-w
+
+  # Extend supported IDs to include Zero2/Zero2W just like your diff
+  SUPPORTED_DEVICES := \
+        rpi-3-b rpi-3-b-plus \
+        rpi-zero-2 rpi-zero-2-w \
+        raspberrypi,2-model-b-rev2 \
+        raspberrypi,3-model-b raspberrypi,3-model-b-plus \
+        raspberrypi,3-compute-module raspberrypi,compute-module-3 \
+        raspberrypi,model-zero-2 raspberrypi,model-zero-2-w \
+        openmanet,rpi-3-om
+
+  # Replace Broadcom Wi-Fi with Morse Micro stack
+  DEVICE_PACKAGES := \
+        kmod-morse netifd-morse morse-fw-6108 morse-fw-8108 \
+        morse-board-config-hotplug-model morsectrl \
+        kmod-of-mdio \
+        wpad-basic-mbedtls
+
+  # Add EKH01 step so /boot/distroconfig.txt gets sysinfo + SDIO overlay
+  IMAGE/sysupgrade.img.gz := boot-common | boot-2708 | boot-ekh01 | sdcard-img | gzip | append-metadata
+  IMAGE/factory.img.gz :=    boot-common | boot-2708 | boot-ekh01 | sdcard-img | gzip
+endef
+ifeq ($(SUBTARGET),bcm2710)
+  TARGET_DEVICES += rpi-3-om
+endif
+
+# Optional: a variant that selects the MM8108 SDIO overlay explicitly.
+define Device/rpi-3-om-8108
+  $(Device/rpi-3-om)
+  DEVICE_MODEL := RPi3-OM (MM8108)
+  SYSINFO_MODEL := OpenMANET RPi3-OM-8108
+  SYSINFO_BOARD_NAME := openmanet,rpi-3-om-8108
+  SUPPORTED_DEVICES := openmanet,rpi-3-om-8108
+  SPI_OVERLAY := mm810x-sdio
+endef
+ifeq ($(SUBTARGET),bcm2710)
+  TARGET_DEVICES += rpi-3-om-8108
+endif
+
 $(eval $(call BuildImage))
