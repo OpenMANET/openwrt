@@ -43,6 +43,6 @@ CONFIG_PACKAGE_kmod-mt7915-firmware=y
 CONFIG_PACKAGE_kmod-mt7916-firmware=y
 CONFIG_PACKAGE_kmod-mt7915e=y
 CONFIG_PACKAGE_kmod-mt7921-firmware=y
-CONFIG_PACKAGE_kmod-mt7921s=y
+CONFIG_PACKAGE_kmod-mt7921e=y
 
 
