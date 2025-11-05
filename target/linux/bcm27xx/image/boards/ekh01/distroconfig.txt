@@ -14,7 +14,9 @@ dtoverlay=disable-bt
 dtoverlay=miniuart-bt
 [cm4]
 # This overlay is used to allow m.2 wifi cards
-dtoverlay=pcie-32bit-dma
+# dtoverlay=pcie-32bit-dma
+dtoverlay=disable-wifi
+dtoverlay=disable-bt
 # Enable USB ports on carrier cards
 dtoverlay=dwc2,dr_mode=host
 
