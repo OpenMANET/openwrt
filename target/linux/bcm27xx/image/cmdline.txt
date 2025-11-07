@@ -1,1 +1,1 @@
-pcie_ports=compat pcie_aspm=off console=serial0 console=ttyUSB0,115200 console=tty1 root=/dev/mmcblk0p2 rootfstype=squashfs,ext4 rootwait
+pcie_aspm=off console=serial0 console=ttyUSB0,115200 console=tty1 root=/dev/mmcblk0p2 rootfstype=squashfs,ext4 rootwait
