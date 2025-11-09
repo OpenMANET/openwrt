@@ -1,0 +1,6 @@
+# OpenVPN
+CONFIG_PACKAGE_openvpn-openssl=y
+CONFIG_PACKAGE_luci-app-openvpn=y
+
+# Wireguard
+CONFIG_PACKAGE_luci-proto-wireguard=y

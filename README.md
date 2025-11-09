@@ -23,6 +23,18 @@ Run this to download all dependencies before starting a build.  It will make bui
 ```
 > make download
 ```
+Some targets provided by this repository include
+
+| Board              | Target                    |
+|--------------------|-------------------------- |
+| MMx108-EKH01 (SDIO)| `mmx108-ekh01-sdio`       |
+| MM6108-EKH01 (SPI) | `mm6108-ekh01-spi`        |
+| MM8108-EKH01 (SPI) | `mm8108-ekh01-spi`        |
+| HaLowLink1         | `halowlink1`              |
+| MM8108-EKH19       | `ekh19`                   |
+
+See the `boards/` folder for other targets and families.
+
 
 After configuration is complete, run the build with
 ```

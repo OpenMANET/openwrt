@@ -1,0 +1,2 @@
+# A space-saving replacement for the ultra-heavy offline version of the user-guide
+CONFIG_PACKAGE_luci-app-morseguide-link=y
