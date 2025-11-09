@@ -143,3 +143,6 @@ CONFIG_PACKAGE_kmod-ath11k-pci=y
 
 CONFIG_PACKAGE_ath10k-firmware-qca6174=y
 CONFIG_PACKAGE_kmod-ath10k=y
+
+# Morse Micro Utils
+CONFIG_PACKAGE_morse-wavemon=y
