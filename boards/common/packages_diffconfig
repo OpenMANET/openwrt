@@ -124,6 +124,10 @@ CONFIG_BUSYBOX_CONFIG_I2CDUMP=y
 CONFIG_BUSYBOX_CONFIG_I2CDETECT=y
 CONFIG_BUSYBOX_CONFIG_I2CTRANSFER=y
 
+# Compile all kmods
+CONFIG_ALL_KMODS=y
+CONFIG_ALL_NONSHARED=y
+
 # IPv6 router settings aren't correctly handled in our UI
 # and odhcpd throws several errors. Temporarily disable.
 CONFIG_PACKAGE_odhcpd-ipv6only=n
