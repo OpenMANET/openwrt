@@ -3,3 +3,4 @@ src-git routing https://github.com/openwrt/routing.git^e351d1e623e9ef2ab78f28cb1
 src-git telephony https://github.com/openwrt/telephony.git^98c8a5aa4624312ed758e2e2b6d4039050a1649d
 src-git luci https://github.com/MorseMicro/luci.git^bbf0649ffd0557cb0b783dbeddb15180dd4e03ea
 src-git morse https://github.com/OpenMANET/morse-feed^ec3e4611c61a572668ea42f389de6b60f23a33dd
+src-git openmanet https://github.com/OpenMANET/packages^f5f264678de9b067b41fe5bf51c95c4a6b34ed9d
