@@ -41,9 +41,12 @@ CONFIG_BUSYBOX_CONFIG_FEATURE_LESS_ASK_TERMINAL=y
 CONFIG_PACKAGE_morsectrl=m
 CONFIG_PACKAGE_morse-bundle=y
 CONFIG_PACKAGE_morse-copy-coredump=y
+CONFIG_PACKAGE_smart_manager=y
 CONFIG_PACKAGE_morse_mesh11sd=y
 CONFIG_PACKAGE_morse-button=y
 CONFIG_PACKAGE_morse-leds=y
+CONFIG_PACKAGE_morse-bcf-info=y
+CONFIG_PACKAGE_morse-firmware-sign=y
 
 # TZ
 CONFIG_PACKAGE_zoneinfo-core=y
@@ -98,8 +101,7 @@ CONFIG_PACKAGE_kmod-batman-adv=y
 CONFIG_PACKAGE_luci-proto-batman-adv=y
 CONFIG_PACKAGE_relayd=y
 CONFIG_PACKAGE_luci-proto-relay=y
-CONFIG_PACKAGE_openvpn-openssl=y
-CONFIG_PACKAGE_luci-app-openvpn=y
+CONFIG_PACKAGE_dpp-handler=y
 CONFIG_MORSE_HOSTAPD_S1G_EAP=y
 CONFIG_MORSE_HOSTAPD_S1G_ACS=y
 CONFIG_MORSE_WPA_SUPPLICANT_S1G_MESH_NETWORKING=y
@@ -121,15 +123,6 @@ CONFIG_BUSYBOX_CONFIG_I2CSET=y
 CONFIG_BUSYBOX_CONFIG_I2CDUMP=y
 CONFIG_BUSYBOX_CONFIG_I2CDETECT=y
 CONFIG_BUSYBOX_CONFIG_I2CTRANSFER=y
-
-# Compile all kmods
-CONFIG_ALL_KMODS=y
-CONFIG_ALL_NONSHARED=y
-
-# We explicity disable kmod-pf-ring here as it does not compile
-# in the upstream. See issue 23621:
-# https://github.com/openwrt/packages/issues/23621
-CONFIG_PACKAGE_kmod-pf-ring=n
 
 # IPv6 router settings aren't correctly handled in our UI
 # and odhcpd throws several errors. Temporarily disable.
