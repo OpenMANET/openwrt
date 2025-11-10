@@ -22,9 +22,7 @@ define Package/pttcomm
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=PTT audio communication tool (GStreamer-based)
-  # On OpenWrt 23/24, GStreamer runtime typically comes from these:
-  # If your tree uses different names (e.g., libgstreamer1.0-0), adjust.
-  DEPENDS:=+gstreamer1 +gst1-plugins-base
+  DEPENDS:=+gstreamer1-libs +gstreamer1-plugins-base
 endef
 
 define Package/pttcomm/description
