@@ -21,21 +21,24 @@ import (
 
 /********* defaults *********/
 const (
-	sampleRate   = 48000
-	channels     = 1
-	frameSize    = 960
-	defaultKey   = "any"
-	defaultIface = "br-ahwlan" // ← use bridge by default; override in UCI if needed
-	defaultG     = "224.0.0.1"
-	defaultPort  = 5007
+	sampleRate        = 48000
+	channels          = 1
+	frameSize         = 960
+	targetBitrate     = 12000
+	encoderComplexity = 3
+	packetLossPerc    = 10
+	defaultKey        = "any"
+	defaultIface      = "br-ahwlan" // ← use bridge by default; override in UCI if needed
+	defaultG          = "224.0.0.1"
+	defaultPort       = 5007
 )
 
 var (
 	// codec/network
-    encoder *opus.Encoder
-    decoder *opus.Decoder
-    udpSendConn *net.UDPConn
-    udpRecvConn *net.UDPConn
+	encoder *opus.Encoder
+	decoder *opus.Decoder
+	udpSendConn *net.UDPConn
+	udpRecvConn *net.UDPConn
 	localIP              string
 	playbackBuffer       = make(chan []float32, 2)
 	beepBufferStart      = make([]float32, frameSize)
@@ -100,8 +103,11 @@ func main() {
 	var err error
 	encoder, err = opus.NewEncoder(sampleRate, channels, opus.AppVoIP)
 	check(err)
-	check(encoder.SetBitrate(6000))
-	check(encoder.SetComplexity(3))
+	check(encoder.SetBitrate(targetBitrate))
+	check(encoder.SetComplexity(encoderComplexity))
+	check(encoder.SetInBandFEC(true))
+	check(encoder.SetPacketLossPerc(packetLossPerc))
+	check(encoder.SetDTX(false))
 
 	decoder, err = opus.NewDecoder(sampleRate, channels)
 	check(err)
@@ -201,11 +207,15 @@ func receiveLoop() {
 		copy(frame, buf[:n])
 
 		pcm := make([]int16, frameSize)
-		if _, err = decoder.Decode(frame, pcm); err != nil {
+		n, err := decoder.Decode(frame, pcm)
+		if err != nil {
 			continue
 		}
-		out := make([]float32, frameSize)
-		for i := range pcm {
+		if isBroadcasting() {
+			continue
+		}
+		out := make([]float32, n)
+		for i := 0; i < n; i++ {
 			out[i] = float32(pcm[i]) / 32768
 		}
 		select {
@@ -222,8 +232,7 @@ func monitorPTT(dev *evdev.InputDevice) {
 		if err != nil {
 			continue
 		}
-		isPress := (ev.Type == evdev.EV_KEY && ev.Value == 1)
-		if !isPress {
+		if ev.Type != evdev.EV_KEY {
 			continue
 		}
 		match := false
@@ -236,25 +245,68 @@ func monitorPTT(dev *evdev.InputDevice) {
 			continue
 		}
 
-		recordMutex.Lock()
-		isTx := broadcasting
-		recordMutex.Unlock()
-
-		if !isTx {
-			playbackBuffer <- beepBufferStart
-			time.Sleep(200 * time.Millisecond)
-			if err := broadcastStream.Start(); err != nil {
-				log.Printf("start mic: %v", err)
-			}
-			recordMutex.Lock(); broadcasting = true; recordMutex.Unlock()
-		} else {
-			if err := broadcastStream.Stop(); err != nil {
-				log.Printf("stop mic: %v", err)
-			}
-			playbackBuffer <- beepBufferStop
-			recordMutex.Lock(); broadcasting = false; recordMutex.Unlock()
+		switch ev.Value {
+		case 1:
+			beginTransmission()
+		case 0:
+			endTransmission()
 		}
 	}
+}
+
+func drainPlaybackBuffer() {
+	for {
+		select {
+		case <-playbackBuffer:
+		default:
+			return
+		}
+	}
+}
+
+func isBroadcasting() bool {
+	recordMutex.Lock()
+	defer recordMutex.Unlock()
+	return broadcasting
+}
+
+func beginTransmission() {
+	recordMutex.Lock()
+	if broadcasting {
+		recordMutex.Unlock()
+		return
+	}
+	broadcasting = true
+	recordMutex.Unlock()
+
+	drainPlaybackBuffer()
+	playbackBuffer <- beepBufferStart
+	time.Sleep(200 * time.Millisecond)
+	if err := broadcastStream.Start(); err != nil {
+		log.Printf("start mic: %v", err)
+		recordMutex.Lock()
+		broadcasting = false
+		recordMutex.Unlock()
+	}
+}
+
+func endTransmission() {
+	recordMutex.Lock()
+	if !broadcasting {
+		recordMutex.Unlock()
+		return
+	}
+	recordMutex.Unlock()
+
+	if err := broadcastStream.Stop(); err != nil {
+		log.Printf("stop mic: %v", err)
+	}
+	drainPlaybackBuffer()
+	playbackBuffer <- beepBufferStop
+
+	recordMutex.Lock()
+	broadcasting = false
+	recordMutex.Unlock()
 }
 
 func getDeviceByIndex(index int) *portaudio.DeviceInfo {
