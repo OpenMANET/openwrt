@@ -133,3 +133,4 @@ CONFIG_PACKAGE_rtl-sdr=y
 # OpenMANET specific packages
 CONFIG_PACKAGE_alfred-openmanet=y
 CONFIG_PACKAGE_gpsd-openmanet=y
+CONFIG_PACKAGE_mdns-openmanet=y
