@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"math"
@@ -32,7 +33,8 @@ const (
 	defaultG          = "224.0.0.1"
 	defaultPort       = 5007
 	defaultDebug      = true
-	defaultLoopback   = false
+	defaultLoopback   = true
+	defaultPTTDevice  = "Generic AB13X USB Audio"
 )
 
 var (
@@ -56,6 +58,7 @@ var (
 	pttKey        = defaultKey
 	debugEnabled  = defaultDebug
 	loopbackAudio = defaultLoopback
+	pttDeviceName = defaultPTTDevice
 )
 
 /********* helpers: UCI *********/
@@ -85,6 +88,9 @@ func loadConfig() {
 			loopbackAudio = parsed
 		}
 	}
+	if v, ok := tree.Get("pttradio", "main", "ptt_device"); ok && len(v) > 0 && v[0] != "" {
+		pttDeviceName = v[0]
+	}
 }
 
 /********* helpers: net *********/
@@ -112,8 +118,15 @@ func joinMulticastGroup(iface *net.Interface, conn *net.UDPConn, group net.IP) e
 
 /********* app *********/
 func main() {
+	listFlag := flag.Bool("l", false, "List input devices and exit")
+	flag.Parse()
+	if *listFlag {
+		logInputDeviceList()
+		return
+	}
+
 	loadConfig()
-	debugf("Config: iface=%s mcast=%s:%d key=%s debug=%t loopback=%t", ifaceName, mcastAddr, mcastPort, pttKey, debugEnabled, loopbackAudio)
+	debugf("Config: iface=%s mcast=%s:%d key=%s debug=%t loopback=%t ptt_device=%s", ifaceName, mcastAddr, mcastPort, pttKey, debugEnabled, loopbackAudio, pttDeviceName)
 
 	var err error
 	encoder, err = opus.NewEncoder(sampleRate, channels, opus.AppVoIP)
@@ -356,12 +369,25 @@ func findPTTDevice() *evdev.InputDevice {
 	devs, err := evdev.ListInputDevices()
 	check(err)
 	for _, d := range devs {
-		if d.Name == "Generic AB13X USB Audio" {
+		if d.Name == pttDeviceName {
+			debugf("Matched PTT device %s (%s)", d.Name, d.Fn)
 			return d
 		}
 	}
-	log.Fatal("PTT device not found")
+	log.Fatalf("PTT device %q not found", pttDeviceName)
 	return nil
+}
+
+func logInputDeviceList() {
+	devs, err := evdev.ListInputDevices()
+	if err != nil {
+		log.Printf("Unable to list input devices: %v", err)
+		return
+	}
+	log.Printf("Discovered %d input devices:", len(devs))
+	for _, d := range devs {
+		log.Printf(" - %s (%s)", d.Name, d.Fn)
+	}
 }
 
 func debugf(format string, args ...interface{}) {
