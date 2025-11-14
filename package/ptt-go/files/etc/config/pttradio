@@ -1,0 +1,8 @@
+config pttradio 'main'
+	option iface 'br-ahwlan'
+	option mcast_addr '224.0.0.1'
+	option mcast_port '5007'
+	option ptt_key 'any'
+	option ptt_device 'Generic AB13X USB Audio'
+	option debug '1'
+	option loopback '0'
