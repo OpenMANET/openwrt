@@ -31,27 +31,31 @@ const (
 	defaultIface      = "br-ahwlan" // ← use bridge by default; override in UCI if needed
 	defaultG          = "224.0.0.1"
 	defaultPort       = 5007
+	defaultDebug      = true
+	defaultLoopback   = false
 )
 
 var (
 	// codec/network
-	encoder *opus.Encoder
-	decoder *opus.Decoder
-	udpSendConn *net.UDPConn
-	udpRecvConn *net.UDPConn
-	localIP              string
-	playbackBuffer       = make(chan []float32, 2)
-	beepBufferStart      = make([]float32, frameSize)
-	beepBufferStop       = make([]float32, frameSize)
-	broadcastStream      *portaudio.Stream
-	broadcasting         bool
-	recordMutex          sync.Mutex
+	encoder         *opus.Encoder
+	decoder         *opus.Decoder
+	udpSendConn     *net.UDPConn
+	udpRecvConn     *net.UDPConn
+	localIP         string
+	playbackBuffer  = make(chan []float32, 2)
+	beepBufferStart = make([]float32, frameSize)
+	beepBufferStop  = make([]float32, frameSize)
+	broadcastStream *portaudio.Stream
+	broadcasting    bool
+	recordMutex     sync.Mutex
 
 	// config from UCI (with fallbacks)
-	ifaceName  = defaultIface
-	mcastAddr  = defaultG
-	mcastPort  = defaultPort
-	pttKey     = defaultKey
+	ifaceName     = defaultIface
+	mcastAddr     = defaultG
+	mcastPort     = defaultPort
+	pttKey        = defaultKey
+	debugEnabled  = defaultDebug
+	loopbackAudio = defaultLoopback
 )
 
 /********* helpers: UCI *********/
@@ -70,6 +74,16 @@ func loadConfig() {
 	}
 	if v, ok := tree.Get("pttradio", "main", "ptt_key"); ok && len(v) > 0 && v[0] != "" {
 		pttKey = v[0]
+	}
+	if v, ok := tree.Get("pttradio", "main", "debug"); ok && len(v) > 0 && v[0] != "" {
+		if parsed, err := strconv.ParseBool(v[0]); err == nil {
+			debugEnabled = parsed
+		}
+	}
+	if v, ok := tree.Get("pttradio", "main", "loopback"); ok && len(v) > 0 && v[0] != "" {
+		if parsed, err := strconv.ParseBool(v[0]); err == nil {
+			loopbackAudio = parsed
+		}
 	}
 }
 
@@ -99,6 +113,7 @@ func joinMulticastGroup(iface *net.Interface, conn *net.UDPConn, group net.IP) e
 /********* app *********/
 func main() {
 	loadConfig()
+	debugf("Config: iface=%s mcast=%s:%d key=%s debug=%t loopback=%t", ifaceName, mcastAddr, mcastPort, pttKey, debugEnabled, loopbackAudio)
 
 	var err error
 	encoder, err = opus.NewEncoder(sampleRate, channels, opus.AppVoIP)
@@ -129,6 +144,7 @@ func main() {
 		select {
 		case data := <-playbackBuffer:
 			copy(out, data)
+			debugf("Playback callback filled %d samples", len(data))
 		default:
 			for i := range out {
 				out[i] = 0
@@ -142,6 +158,7 @@ func main() {
 
 	// mic stream (opened, not started)
 	broadcastStream, err = portaudio.OpenDefaultStream(channels, 0, float64(sampleRate), frameSize, func(in []float32) {
+		debugf("Mic callback received %d samples", len(in))
 		pcm := make([]int16, len(in))
 		for i, v := range in {
 			pcm[i] = int16(v * 32767)
@@ -149,6 +166,7 @@ func main() {
 		buf := make([]byte, 4000)
 		if n, err := encoder.Encode(pcm, buf); err == nil {
 			_, _ = udpSendConn.Write(buf[:n])
+			debugf("Encoded %d bytes from mic callback", n)
 		}
 	})
 	check(err)
@@ -164,24 +182,28 @@ func main() {
 	ifIP, ifi, err := getIfaceIPv4(ifaceName)
 	check(err)
 	localIP = ifIP
+	debugf("Using interface %s with IP %s", ifaceName, ifIP)
 
 	// sender bound to iface IP so traffic egresses that iface
 	dst := &net.UDPAddr{IP: net.ParseIP(mcastAddr), Port: mcastPort}
 	src := &net.UDPAddr{IP: net.ParseIP(ifIP), Port: 0}
 	udpSendConn, err = net.DialUDP("udp4", src, dst)
 	check(err)
+	debugf("Sender bound to %s -> %s:%d", src.IP.String(), mcastAddr, mcastPort)
 
 	// receiver on all, then join group on iface
 	udpRecvConn, err = net.ListenUDP("udp4", &net.UDPAddr{IP: net.IPv4zero, Port: mcastPort})
 	check(err)
 	_ = udpRecvConn.SetReadBuffer(65535)
 	check(joinMulticastGroup(ifi, udpRecvConn, net.ParseIP(mcastAddr)))
+	debugf("Joined multicast group %s:%d", mcastAddr, mcastPort)
 
 	go receiveLoop()
 
 	// PTT input (kept as-is for now)
 	ptt := findPTTDevice()
 	fmt.Println("🎙️ Listening for PTT on:", ptt.Name)
+	debugf("Monitoring PTT device %s", ptt.Name)
 	go monitorPTT(ptt)
 
 	c := make(chan os.Signal, 1)
@@ -198,20 +220,17 @@ func receiveLoop() {
 			log.Println("Recv error:", err)
 			continue
 		}
-		// (optional) drop self
-		if src.IP.IsLoopback() || src.IP.String() == localIP {
-			// pass if testing loopback; otherwise skip
+		debugf("Received %d bytes from %s", n, src.IP.String())
+		if !loopbackAudio && (src.IP.IsLoopback() || src.IP.String() == localIP) {
+			continue
 		}
 
 		frame := make([]byte, n)
 		copy(frame, buf[:n])
 
 		pcm := make([]int16, frameSize)
-		n, err := decoder.Decode(frame, pcm)
+		n, err = decoder.Decode(frame, pcm)
 		if err != nil {
-			continue
-		}
-		if isBroadcasting() {
 			continue
 		}
 		out := make([]float32, n)
@@ -220,6 +239,7 @@ func receiveLoop() {
 		}
 		select {
 		case playbackBuffer <- out:
+			debugf("Queued playback buffer with %d samples (depth=%d)", len(out), len(playbackBuffer))
 		default:
 			log.Println("⚠️ Playback buffer full! Dropping packet.")
 		}
@@ -245,11 +265,17 @@ func monitorPTT(dev *evdev.InputDevice) {
 			continue
 		}
 
-		switch ev.Value {
-		case 1:
-			beginTransmission()
-		case 0:
-			endTransmission()
+		if ev.Value == 1 {
+			debugf("PTT down (code=%d)", ev.Code)
+			if isBroadcasting() {
+				debugf("PTT toggle: stopping transmission")
+				endTransmission()
+			} else {
+				debugf("PTT toggle: starting transmission")
+				beginTransmission()
+			}
+		} else if ev.Value == 0 {
+			debugf("PTT up (code=%d)", ev.Code)
 		}
 	}
 }
@@ -273,12 +299,14 @@ func isBroadcasting() bool {
 func beginTransmission() {
 	recordMutex.Lock()
 	if broadcasting {
+		debugf("PTT down ignored; already broadcasting")
 		recordMutex.Unlock()
 		return
 	}
 	broadcasting = true
 	recordMutex.Unlock()
 
+	debugf("Begin transmission: playing start tone and starting mic stream")
 	drainPlaybackBuffer()
 	playbackBuffer <- beepBufferStart
 	time.Sleep(200 * time.Millisecond)
@@ -287,19 +315,25 @@ func beginTransmission() {
 		recordMutex.Lock()
 		broadcasting = false
 		recordMutex.Unlock()
+		return
 	}
+	debugf("Mic stream started")
 }
 
 func endTransmission() {
 	recordMutex.Lock()
 	if !broadcasting {
+		debugf("PTT up ignored; mic already idle")
 		recordMutex.Unlock()
 		return
 	}
 	recordMutex.Unlock()
 
+	debugf("End transmission: stopping mic stream and playing stop tone")
 	if err := broadcastStream.Stop(); err != nil {
 		log.Printf("stop mic: %v", err)
+	} else {
+		debugf("Mic stream stopped")
 	}
 	drainPlaybackBuffer()
 	playbackBuffer <- beepBufferStop
@@ -330,4 +364,15 @@ func findPTTDevice() *evdev.InputDevice {
 	return nil
 }
 
-func check(err error) { if err != nil { log.Fatal(err) } }
+func debugf(format string, args ...interface{}) {
+	if !debugEnabled {
+		return
+	}
+	log.Printf("[DEBUG] "+format, args...)
+}
+
+func check(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
+}
