@@ -107,8 +107,8 @@ CONFIG_PACKAGE_portaudio=y
 #
 # GPS Support
 #
-CONFIG_PACKAGE_gpsd=y
-CONFIG_PACKAGE_gpsd-clients=y
+#CONFIG_PACKAGE_gpsd=y
+#CONFIG_PACKAGE_gpsd-clients=y
 
 # Add USB Driver for Panda Wireless
 CONFIG_PACKAGE_kmod-rt2800-lib=y
@@ -120,9 +120,9 @@ CONFIG_PACKAGE_golang=y
 CONFIG_PACKAGE_golang-src=y
 
 # B.A.T.M.A.N. Advanced Alfred
-CONFIG_PACKAGE_ALFRED_GPSD=y
-CONFIG_PACKAGE_ALFRED_BATHOSTS=y
-CONFIG_PACKAGE_alfred=y
+#CONFIG_PACKAGE_ALFRED_GPSD=y
+#CONFIG_PACKAGE_ALFRED_BATHOSTS=y
+#CONFIG_PACKAGE_alfred=y
 
 # Added for ADSB to COT
 CONFIG_PACKAGE_adsbtocot=y
