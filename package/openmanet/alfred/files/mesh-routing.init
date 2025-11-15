@@ -1,8 +1,0 @@
-#!/bin/sh
-
-/etc/init.d/mesh-routing enabled && {
-    /etc/init.d/mesh-routing stop
-    /etc/init.d/mesh-routing disable
-}
-
-exit 0
