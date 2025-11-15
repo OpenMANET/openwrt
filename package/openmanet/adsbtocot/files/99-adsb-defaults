@@ -1,0 +1,48 @@
+#!/bin/sh
+# /etc/uci-defaults/99-adsb-defaults
+# Apply once on first boot
+[ -f /etc/adsbcot/.defaults_applied ] && exit 0
+
+# Ensure dump1090 JSON path exists
+mkdir -p /var/run/dump1090
+
+uci -q batch <<'EOF'
+set dump1090.main=dump1090
+set dump1090.main.enabled='1'
+set dump1090.main.disabled='0'
+
+# SDR + decoding
+set dump1090.main.device_index='0'
+set dump1090.main.gain='49.6'
+set dump1090.main.no_fix='0'
+set dump1090.main.fix='1'
+
+# JSON output only
+set dump1090.main.write_json='/var/run/dump1090'
+set dump1090.main.write_json_every='1'
+delete dump1090.main.html_dir
+
+# *** Disable all dump1090 network sockets ***
+set dump1090.main.net='0'
+set dump1090.main.net_only='0'
+delete dump1090.main.net_bind_address
+delete dump1090.main.net_ri_port
+delete dump1090.main.net_ro_port
+delete dump1090.main.net_sbs_port
+delete dump1090.main.net_bi_port
+delete dump1090.main.net_bo_port
+delete dump1090.main.net_heartbeat
+delete dump1090.main.net_buffer
+delete dump1090.main.net_verbatim
+delete dump1090.main.forward_mlat
+
+commit dump1090
+EOF
+
+/etc/init.d/adsbcot stop
+/etc/init.d/adsbcot disable
+/etc/init.d/dump1090 stop
+/etc/init.d/dump1090 disable
+
+touch /etc/adsbcot/.defaults_applied
+exit 0

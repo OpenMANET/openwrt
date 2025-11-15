@@ -1,0 +1,47 @@
+#!/bin/sh /etc/rc.common
+START=95
+USE_PROCD=1
+
+PROG="/usr/bin/adsbcot"
+CONF="/etc/adsbcot/adsbcot.ini"
+IFACE_DEV="br-ahwlan"
+
+# optional: restart when the config file changes
+service_triggers() {
+	procd_add_reload_trigger adsbcot
+	procd_add_jail_mount "$CONF"
+	procd_add_config_trigger "config.change" adsbcot /etc/init.d/adsbcot reload
+}
+
+get_iface_ipv4() {
+	# Extract first IPv4 on the bridge device (strip cidr)
+	ip -4 addr show dev "$IFACE_DEV" 2>/dev/null \
+	| awk '/inet /{print $2; exit}' \
+	| cut -d/ -f1
+}
+
+start_service() {
+	local ip
+	ip="$(get_iface_ipv4)"
+
+	if [ -z "$ip" ]; then
+		logger -t adsbcot "No IPv4 found on $IFACE_DEV; not setting PYTAK_MULTICAST_LOCAL_ADDR"
+	fi
+
+	procd_open_instance
+	procd_set_param command "$PROG" -c "$CONF"
+	# Export env var if we have it
+	[ -n "$ip" ] && procd_set_param env PYTAK_MULTICAST_LOCAL_ADDR="$ip"
+
+	# Restart on crash: 5s min, 10s max, 5 tries
+	procd_set_param respawn 5 10 5
+
+	# Log to logread
+	procd_set_param stdout 1
+	procd_set_param stderr 1
+
+	# Re-run if the config file changes
+	procd_set_param file "$CONF"
+
+	procd_close_instance
+}
