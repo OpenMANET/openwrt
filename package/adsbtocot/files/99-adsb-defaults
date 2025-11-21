@@ -43,6 +43,8 @@ EOF
 /etc/init.d/adsbcot disable
 /etc/init.d/dump1090 stop
 /etc/init.d/dump1090 disable
+/etc/init.d/mediamtx stop
+/etc/init.d/mediamtx disable
 
 touch /etc/adsbcot/.defaults_applied
 exit 0
