@@ -1,13 +1,16 @@
 # MorseMicro OpenWrt
 ## Dependencies
 
-To build the Morse Micro OpenWrt, you need a working Linux environment. This has been tested with Ubuntu 20.04 and higher.
+To build the Morse Micro OpenWrt, you need a working Linux environment. This has been tested with Ubuntu 24.04.
 
 Install build environment packages with
 ```
 > sudo apt update
-> sudo apt install build-essential clang flex g++ gawk gcc-multilib git gettext \
-  libncurses5-dev libssl-dev python3-distutils rsync unzip zlib1g-dev swig
+> sudo apt install build-essential clang flex bison g++ gawk \
+gcc-multilib g++-multilib gettext git libncurses5-dev libssl-dev \
+python3-setuptools rsync swig unzip zlib1g-dev file wget libnl-3-dev \
+libnl-genl-3-dev libgps-dev libcap-dev pkg-config libopus-dev \
+libopusfile-dev portaudio19-dev net-tools
 ```
 
 ## Usage
