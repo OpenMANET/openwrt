@@ -1,4 +1,4 @@
-src-git openmanet https://github.com/OpenMANET/packages^2202c06df3e37dd56e88ce9082d4ea9d6927f94d
+src-git openmanet https://github.com/OpenMANET/packages^9bf266065d7084fb47d88888b6e6a975901c692d
 src-git packages https://github.com/openwrt/packages.git^b5ed85f6e94aa08de1433272dc007550f4a28201
 src-git routing https://github.com/openwrt/routing.git^e351d1e623e9ef2ab78f28cb1ce8d271d28c902d
 src-git telephony https://github.com/openwrt/telephony.git^98c8a5aa4624312ed758e2e2b6d4039050a1649d
