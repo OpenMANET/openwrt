@@ -1,7 +1,7 @@
-src-git openmanet https://github.com/OpenMANET/packages^3d24689b6ba8e4c8e2443d6f1346d6c1c1dea924
+src-git openmanet https://github.com/OpenMANET/packages^0a1e136376dfe005bdf42998665979ffa7dfec71
 src-git packages https://github.com/openwrt/packages.git^b5ed85f6e94aa08de1433272dc007550f4a28201
 src-git routing https://github.com/openwrt/routing.git^e351d1e623e9ef2ab78f28cb1ce8d271d28c902d
 src-git telephony https://github.com/openwrt/telephony.git^98c8a5aa4624312ed758e2e2b6d4039050a1649d
 src-git luci https://github.com/MorseMicro/luci.git^fb7dfe08d55650bbb4078cf4ceb472697eb82ba9
-src-git morse https://github.com/OpenMANET/morse-feed^dbf6421d02e876fd221a1c43b5e2050bc8514f9a
+src-git morse https://github.com/OpenMANET/morse-feed^0f90a284a9b17403d3bc848049f2ed235fe7d744
 src-git prpl https://github.com/MorseMicro/feed-prpl.git^0542e586dd4698b41da335293501e890541bd74b
