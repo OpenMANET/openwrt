@@ -115,10 +115,6 @@ CONFIG_PACKAGE_kmod-rt2800-lib=y
 CONFIG_PACKAGE_kmod-rt2800-usb=y
 CONFIG_PACKAGE_kmod-rt2x00-lib=y
 
-# Add golang support
-CONFIG_PACKAGE_golang=y
-CONFIG_PACKAGE_golang-src=y
-
 # B.A.T.M.A.N. Advanced Alfred
 CONFIG_PACKAGE_ALFRED_GPSD=y
 CONFIG_PACKAGE_ALFRED_BATHOSTS=y
@@ -129,6 +125,11 @@ CONFIG_PACKAGE_adsbtocot=y
 CONFIG_PACKAGE_dump1090=y
 # (optional tools; dump1090 only needs librtlsdr, but these are handy)
 CONFIG_PACKAGE_rtl-sdr=y
+
+# OpenMANETd
+CONFIG_PACKAGE_golang=y
+CONFIG_PACKAGE_golang-src=y
+CONFIG_PACKAGE_openmanetd=y
 
 # mDNS / Avahi
 CONFIG_PACKAGE_avahi-daemon-service-http=y
@@ -153,3 +154,7 @@ CONFIG_PACKAGE_kmod-mt7921-firmware=y
 CONFIG_PACKAGE_kmod-mt7921e=y
 CONFIG_PACKAGE_kmod-mt7921s=y
 CONFIG_PACKAGE_kmod-mt7921u=y
+
+CONFIG_PACKAGE_kmod-mt76-usb=m
+CONFIG_PACKAGE_kmod-mt76x0u=m
+CONFIG_PACKAGE_kmod-mt7601u=m
