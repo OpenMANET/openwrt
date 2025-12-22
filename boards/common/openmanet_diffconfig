@@ -153,3 +153,6 @@ CONFIG_PACKAGE_kmod-mt7921-firmware=y
 CONFIG_PACKAGE_kmod-mt7921e=y
 CONFIG_PACKAGE_kmod-mt7921s=y
 CONFIG_PACKAGE_kmod-mt7921u=y
+
+# Add OCS
+CONFIG_PACKAGE_ocs=y
